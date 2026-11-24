@@ -20,8 +20,11 @@
   * Put all new scripts, prefabs, scenes, and ScriptableObjects inside `Assets/_Project/`.
   * **Do NOT modify, rename, or move** files inside third-party asset folders.
 * **Available Art Packs:**
-  * **Synty POLYGON Sampler Pack** (`Assets/SyntyStudios`): Use Prototype modular pieces for walls/floors/doors, City vehicles/props for the waiting bus/car outside, and Knights/Adventure props as absurd decoy items.
-  * **Kenney Furniture Kit** (`Assets/kenney-furniture-kit-interior-asset-collection`): Use for interior bedroom, living room, kitchen, and bathroom furniture and interactive hiding spots.
+  * **Synty POLYGON Sampler Pack** (`Assets/SyntyStudios/`):
+    * `Assets/SyntyStudios/PolygonPrototype/Prefabs/Buildings/Polygon/` (modular walls/floors/doors) & `Assets/SyntyStudios/PolygonPrototype/Prefabs/Props/` (greybox/prototype clutter)
+    * `Assets/SyntyStudios/PolygonCity/Prefabs/Vehicles/` & `Props/` (waiting car/taxi/van outside + urban props)
+    * `Assets/SyntyStudios/PolygonKnights/Prefabs/`, `Assets/SyntyStudios/PolygonAdventure/Prefabs/`, `Assets/SyntyStudios/PolygonStarter/Prefabs/`, and `Assets/SyntyStudios/PolygonSamples/` (absurd decoy items & extra props)
+  * **Kenney Furniture Kit** (`Assets/kenney-furniture-kit-interior-asset-collection/`): Use `Assets/kenney-furniture-kit-interior-asset-collection/Models/FBX format/` (140 `.fbx` interior furniture & clutter props for bedroom, bathroom, hallway, living room, and kitchen hiding spots).
 * **Physics Rule for Imported Props:** Any furniture prop or clutter made grabbable/throwable must use a `BoxCollider` or a **Convex** `MeshCollider` paired with a `Rigidbody` (never a non-convex `MeshCollider` on a dynamic `Rigidbody`).
 
 ---

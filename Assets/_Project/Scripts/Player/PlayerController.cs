@@ -142,6 +142,16 @@ namespace WheresMyLeftSock.Player
             {
                 _cameraDefaultLocalPos = playerCamera.transform.localPosition;
                 playerCamera.fieldOfView = baseFov;
+
+                if (cameraRoot != null &&
+                    playerCamera.transform != cameraRoot &&
+                    _cameraDefaultLocalPos.sqrMagnitude > 0.25f)
+                {
+                    Debug.LogWarning(
+                        $"[PlayerController] '{playerCamera.name}' localPosition is {_cameraDefaultLocalPos} under '{cameraRoot.name}'. " +
+                        "Reset Main Camera's Local Position to (0, 0, 0) so first-person view and interaction raycasts start at eye level.",
+                        playerCamera);
+                }
             }
 
             if (lockCursorOnStart)

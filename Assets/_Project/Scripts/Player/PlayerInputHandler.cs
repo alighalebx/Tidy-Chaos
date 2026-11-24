@@ -39,6 +39,7 @@ namespace WheresMyLeftSock.Player
         private bool _gameplayEnabled = true;
 
         public bool IsInitialized { get; private set; }
+        public bool IsGameplayInputEnabled => IsInitialized && _gameplayEnabled;
 
         public Vector2 MoveInput =>
             CanReadInput(_moveAction) ? _moveAction.ReadValue<Vector2>() : Vector2.zero;

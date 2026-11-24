@@ -77,6 +77,9 @@ namespace WheresMyLeftSock.Player
         [Header("Raycast & Layers")]
         [Min(0.5f)]
         [SerializeField] private float interactionRange = 2.5f;
+        [Tooltip("Small SphereCast assist radius used when the exact center ray misses thin/small props.")]
+        [Min(0f)]
+        [SerializeField] private float interactionAssistRadius = 0.06f;
         [SerializeField] private LayerMask interactionLayerMask = ~0;
         [SerializeField] private LayerMask obstructionLayerMask = ~0;
 
@@ -89,7 +92,10 @@ namespace WheresMyLeftSock.Player
         [SerializeField] private float holdFollowSpeed = 16f;
         [SerializeField] private float holdVelocitySmoothing = 22f;
         [SerializeField] private float maxCarrySpeed = 18f;
-        [SerializeField] private float maxBreakDistance = 2.4f;
+        [SerializeField] private float maxBreakDistance = 3.2f;
+        [Tooltip("Grace period right after grabbing so pulling wide props toward HoldPoint doesn't trigger break distance.")]
+        [Min(0f)]
+        [SerializeField] private float grabBreakGraceTime = 0.35f;
         [SerializeField] private float heldLinearDamping = 4f;
         [SerializeField] private float heldAngularDamping = 6f;
         [SerializeField] private bool alignHeldRotation = false;
@@ -123,6 +129,7 @@ namespace WheresMyLeftSock.Player
         private IInteractable _hoveredInteractable;
         private InteractionHoverState _currentHover;
         private Vector3 _smoothedCarryVelocity;
+        private float _grabGraceTimer;
 
         public bool IsHoldingObject => _heldClutter != null;
         public PhysicsClutter HeldClutter => _heldClutter;
@@ -136,6 +143,17 @@ namespace WheresMyLeftSock.Player
             _playerColliders = GetComponentsInChildren<Collider>(true);
 
             ResolveCameraTransform();
+        }
+
+        private void Start()
+        {
+            if (cameraTransform != null && Vector3.Distance(cameraTransform.position, transform.position) > 2.5f)
+            {
+                Debug.LogWarning(
+                    $"[InteractionManager] '{cameraTransform.name}' is {Vector3.Distance(cameraTransform.position, transform.position):F2}m away from '{name}'. " +
+                    "Ensure Main Camera Local Position is (0, 0, 0) under CameraRoot (not left at z = -10).",
+                    cameraTransform);
+            }
         }
 
         private void OnDisable()
@@ -184,7 +202,11 @@ namespace WheresMyLeftSock.Player
             Vector3 targetPos = ComputeWallClearedHoldPosition();
             Vector3 toTarget = targetPos - body.worldCenterOfMass;
 
-            if (toTarget.magnitude > maxBreakDistance)
+            if (_grabGraceTimer > 0f)
+            {
+                _grabGraceTimer -= Time.fixedDeltaTime;
+            }
+            else if (toTarget.magnitude > maxBreakDistance)
             {
                 ReleaseHeldObject(wasThrown: false);
                 return;
@@ -211,10 +233,12 @@ namespace WheresMyLeftSock.Player
         private void OnValidate()
         {
             interactionRange = Mathf.Max(0.5f, interactionRange);
+            interactionAssistRadius = Mathf.Max(0f, interactionAssistRadius);
             minHoldDistance = Mathf.Max(0.25f, minHoldDistance);
             holdDistance = Mathf.Max(minHoldDistance, holdDistance);
             wallClearanceRadius = Mathf.Max(0.05f, wallClearanceRadius);
             maxBreakDistance = Mathf.Max(0.5f, maxBreakDistance);
+            grabBreakGraceTime = Mathf.Max(0f, grabBreakGraceTime);
             reEnablePlayerCollisionDelay = Mathf.Max(0f, reEnablePlayerCollisionDelay);
         }
 
@@ -325,30 +349,48 @@ namespace WheresMyLeftSock.Player
                 }
             }
 
-            if (closestCollider != null)
+            if (closestCollider != null && TryResolveTarget(closestCollider))
             {
-                IInteractable interactable = closestCollider.GetComponentInParent<IInteractable>();
-                if (interactable != null && interactable.CanInteract)
+                return;
+            }
+
+            if (interactionAssistRadius > 0.001f)
+            {
+                float assistMaxDistance = Mathf.Min(interactionRange, closestDistance);
+                int assistHitCount = Physics.SphereCastNonAlloc(
+                    cameraTransform.position,
+                    interactionAssistRadius,
+                    cameraTransform.forward,
+                    _sphereCastHits,
+                    assistMaxDistance,
+                    interactionLayerMask,
+                    QueryTriggerInteraction.Ignore);
+
+                Collider bestAssistCollider = null;
+                float bestAssistDistance = float.MaxValue;
+
+                for (int i = 0; i < assistHitCount; i++)
                 {
-                    _hoveredInteractable = interactable;
-                    GameObject targetObj = (interactable is Component comp) ? comp.gameObject : closestCollider.gameObject;
-                    SetHoverState(new InteractionHoverState(
-                        interactable.Category,
-                        interactable.InteractionPrompt,
-                        targetObj,
-                        isHoldingObject: false));
-                    return;
+                    RaycastHit hit = _sphereCastHits[i];
+                    if (hit.collider == null || hit.collider.transform.IsChildOf(transform))
+                    {
+                        continue;
+                    }
+
+                    if (!HasValidTarget(hit.collider))
+                    {
+                        continue;
+                    }
+
+                    if (hit.distance < bestAssistDistance)
+                    {
+                        bestAssistDistance = hit.distance;
+                        bestAssistCollider = hit.collider;
+                    }
                 }
 
-                PhysicsClutter clutter = closestCollider.GetComponentInParent<PhysicsClutter>();
-                if (clutter != null && clutter.IsGrabbable)
+                if (bestAssistCollider != null && TryResolveTarget(bestAssistCollider))
                 {
-                    _hoveredClutter = clutter;
-                    SetHoverState(new InteractionHoverState(
-                        InteractionCategory.Grabbable,
-                        clutter.DisplayName,
-                        clutter.gameObject,
-                        isHoldingObject: false));
                     return;
                 }
             }
@@ -356,8 +398,55 @@ namespace WheresMyLeftSock.Player
             SetHoverState(default);
         }
 
+        private bool HasValidTarget(Collider col)
+        {
+            IInteractable interactable = col.GetComponentInParent<IInteractable>();
+            if (interactable != null && interactable.CanInteract)
+            {
+                return true;
+            }
+
+            PhysicsClutter clutter = col.GetComponentInParent<PhysicsClutter>();
+            return clutter != null && clutter.IsGrabbable;
+        }
+
+        private bool TryResolveTarget(Collider col)
+        {
+            IInteractable interactable = col.GetComponentInParent<IInteractable>();
+            if (interactable != null && interactable.CanInteract)
+            {
+                _hoveredInteractable = interactable;
+                GameObject targetObj = (interactable is Component comp) ? comp.gameObject : col.gameObject;
+                SetHoverState(new InteractionHoverState(
+                    interactable.Category,
+                    interactable.InteractionPrompt,
+                    targetObj,
+                    isHoldingObject: false));
+                return true;
+            }
+
+            PhysicsClutter clutter = col.GetComponentInParent<PhysicsClutter>();
+            if (clutter != null && clutter.IsGrabbable)
+            {
+                _hoveredClutter = clutter;
+                SetHoverState(new InteractionHoverState(
+                    InteractionCategory.Grabbable,
+                    clutter.DisplayName,
+                    clutter.gameObject,
+                    isHoldingObject: false));
+                return true;
+            }
+
+            return false;
+        }
+
         private void HandleInteractionInput()
         {
+            if (_input == null || !_input.IsGameplayInputEnabled)
+            {
+                return;
+            }
+
             if (_heldClutter != null)
             {
                 if (_input.ThrowPressedThisFrame)
@@ -412,6 +501,7 @@ namespace WheresMyLeftSock.Player
 
             CancelPendingCollisionRestore(clutter);
             _heldClutter = clutter;
+            _grabGraceTimer = grabBreakGraceTime;
             _smoothedCarryVelocity = Vector3.zero;
             _heldClutter.OnGrabbed(heldLinearDamping, heldAngularDamping);
             SetPlayerCollisionIgnored(_heldClutter, ignored: true);
