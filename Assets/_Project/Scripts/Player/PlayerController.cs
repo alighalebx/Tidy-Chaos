@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace WheresMyLeftSock.Player
@@ -9,151 +10,125 @@ namespace WheresMyLeftSock.Player
     }
 
     /// <summary>
-    /// Crisp first-person CharacterController movement (walk, sprint, crouch with ceiling check,
-    /// jump with coyote/buffer, head-bob, strafe tilt, and sprint FOV boost).
+    /// Goofy third-person physics character. Movement is a Rigidbody pushed toward a camera-relative
+    /// target velocity with limited acceleration, so you carry momentum, skid when reversing, shove clutter
+    /// around with your body, and faceplant if you sprint into a wall. Visual wobble lives in GoofyBody.
     /// </summary>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(PlayerInputHandler))]
     public class PlayerController : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Pivot transform that handles vertical camera pitch, crouch height, and strafe tilt.")]
-        [SerializeField] private Transform cameraRoot;
+        [SerializeField] private ThirdPersonCamera cameraRig = default;
 
-        [Tooltip("Main first-person camera inside the player hierarchy.")]
-        [SerializeField] private Camera playerCamera;
+        [Header("Speeds")]
+        [SerializeField] private float walkSpeed = 4.6f;
+        [SerializeField] private float sprintSpeed = 7.4f;
+        [SerializeField] private float crouchSpeed = 2.3f;
 
-        [Header("Movement")]
-        [SerializeField] private float walkSpeed = 5.5f;
-        [SerializeField] private float sprintSpeed = 8.5f;
-        [SerializeField] private float crouchSpeed = 3.0f;
-        [SerializeField] private float groundAcceleration = 28f;
-        [SerializeField] private float groundDeceleration = 32f;
-        [SerializeField] private float airAcceleration = 10f;
-        [SerializeField] private bool canSprintWhileCrouching = false;
+        [Header("Acceleration (lower = slidier)")]
+        [SerializeField] private float groundAcceleration = 30f;
+        [SerializeField] private float groundBraking = 20f;
+        [Tooltip("Acceleration used when pushing against your own momentum (big skids).")]
+        [SerializeField] private float skidAcceleration = 14f;
+        [SerializeField] private float airAcceleration = 7f;
+        [SerializeField] private float knockedDownFriction = 4.5f;
+        [SerializeField] private float turnSpeedDegrees = 540f;
 
         [Header("Jump & Gravity")]
-        [SerializeField] private float jumpHeight = 1.15f;
-        [SerializeField] private float gravity = -24f;
-        [SerializeField] private float groundedStickForce = -2f;
-        [SerializeField] private float coyoteTime = 0.1f;
-        [SerializeField] private float jumpBufferTime = 0.1f;
+        [SerializeField] private float jumpHeight = 1.0f;
+        [SerializeField] private float fallGravityMultiplier = 1.8f;
+        [SerializeField] private float coyoteTime = 0.12f;
+        [SerializeField] private float jumpBufferTime = 0.12f;
+
+        [Header("Ground Check")]
+        [SerializeField] private float groundCheckDistance = 0.12f;
+        [SerializeField] private float maxGroundAngle = 50f;
+        [SerializeField] private LayerMask groundMask = ~0;
 
         [Header("Crouch")]
         [SerializeField] private CrouchMode crouchMode = CrouchMode.Hold;
-        [SerializeField] private float standingHeight = 1.8f;
+        [SerializeField] private float standingHeight = 1.6f;
         [SerializeField] private float crouchingHeight = 1.0f;
-        [SerializeField] private float standingCameraY = 1.6f;
-        [SerializeField] private float crouchingCameraY = 0.85f;
-        [SerializeField] private float crouchTransitionSpeed = 14f;
-        [SerializeField] private LayerMask ceilingCheckMask = ~0;
+        [SerializeField] private float crouchTransitionSpeed = 12f;
 
-        [Header("Look")]
-        [SerializeField] private float mouseSensitivity = 0.15f;
-        [SerializeField] private float gamepadLookSpeed = 140f;
-        [SerializeField] private float minPitch = -85f;
-        [SerializeField] private float maxPitch = 85f;
+        [Header("Goofy")]
+        [Tooltip("Sprinting into a wall faster than this knocks you on your back.")]
+        [SerializeField] private float bonkSpeed = 6.2f;
+        [SerializeField] private float bonkKnockdownDuration = 0.9f;
+        [SerializeField] private float bonkBounce = 2.6f;
+
+        [Header("Cursor")]
         [SerializeField] private bool lockCursorOnStart = true;
 
-        [Header("Camera Juice")]
-        [SerializeField] private float baseFov = 70f;
-        [SerializeField] private float sprintFovBoost = 8f;
-        [SerializeField] private float fovLerpSpeed = 10f;
-        [SerializeField] private bool enableHeadBob = true;
-        [SerializeField] private float walkBobFrequency = 9f;
-        [SerializeField] private float walkBobAmplitude = 0.025f;
-        [SerializeField] private float sprintBobFrequency = 13f;
-        [SerializeField] private float sprintBobAmplitude = 0.055f;
-        [SerializeField] private bool enableStrafeTilt = true;
-        [SerializeField] private float maxStrafeTiltDegrees = 2.0f;
-        [SerializeField] private float strafeTiltSpeed = 10f;
+        public event Action Jumped;
+        public event Action<float> Landed;
+        public event Action KnockedDown;
 
-        [Header("Clutter Push")]
-        [Tooltip("Gentle impulse strength applied when walking into non-held dynamic Rigidbodies.")]
-        [SerializeField] private float pushClutterPower = 2.2f;
-
-        private readonly Collider[] _ceilingOverlapBuffer = new Collider[16];
-
-        private CharacterController _controller;
+        private Rigidbody _rb;
+        private CapsuleCollider _capsule;
         private PlayerInputHandler _input;
-        private InteractionManager _interactionManager;
+        private InteractionManager _interaction;
+        private readonly RaycastHit[] _groundHits = new RaycastHit[8];
+        private readonly Collider[] _ceilingHits = new Collider[8];
 
         private bool _controlsEnabled = true;
         private bool _wantsCrouch;
-        private bool _isCrouching;
-
-        private float _yaw;
-        private float _pitch;
-        private float _currentHeight;
-        private float _currentCameraY;
-        private float _verticalVelocity;
         private float _coyoteTimer;
         private float _jumpBufferTimer;
-        private float _bobTimer;
-        private float _currentStrafeTilt;
-
-        private float _externalSpeedMultiplier = 1f;
+        private float _jumpCooldown;
+        private float _knockTimer;
+        private float _bonkGrace;
+        private float _speedMultiplier = 1f;
         private float _speedMultiplierTimer;
-
-        private Vector3 _horizontalVelocity;
-        private Vector3 _currentVelocity;
-        private Vector3 _currentBobOffset;
-        private Vector3 _cameraRootDefaultLocalPos;
-        private Vector3 _cameraDefaultLocalPos;
+        private float _lastPlanarSpeed;
+        private float _lastFallSpeed;
+        private Vector3 _lastPlanarVelocity;
+        private Vector3 _smoothedAccel;
 
         public bool IsGrounded { get; private set; }
         public bool IsSprinting { get; private set; }
-        public bool IsCrouching => _isCrouching;
-        public float CurrentHorizontalSpeed => _horizontalVelocity.magnitude;
-        public Vector3 Velocity => _currentVelocity;
-        public Transform CameraTransform => playerCamera != null ? playerCamera.transform : cameraRoot;
+        public bool IsCrouching { get; private set; }
+        public bool IsSkidding { get; private set; }
+        public bool IsKnockedDown => _knockTimer > 0f;
+        /// <summary>+85 = faceplant forward, -85 = flat on your back.</summary>
+        public float KnockdownPitch { get; private set; } = 85f;
+        public float CrouchBlend { get; private set; }
+        public float CurrentHorizontalSpeed => new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z).magnitude;
+        public Vector3 Velocity => _rb != null ? _rb.linearVelocity : Vector3.zero;
+        public Vector3 PlanarAcceleration => _smoothedAccel;
+        public Vector3 MoveInputWorld { get; private set; }
+        public bool ControlsEnabled => _controlsEnabled;
+        public ThirdPersonCamera CameraRig => cameraRig;
+        public Transform CameraTransform =>
+            cameraRig != null ? cameraRig.CameraTransform : (Camera.main != null ? Camera.main.transform : null);
 
         private void Awake()
         {
-            _controller = GetComponent<CharacterController>();
+            _rb = GetComponent<Rigidbody>();
+            _capsule = GetComponent<CapsuleCollider>();
             _input = GetComponent<PlayerInputHandler>();
-            _interactionManager = GetComponent<InteractionManager>();
+            _interaction = GetComponent<InteractionManager>();
 
-            ResolveCameraReferences();
+            if (cameraRig == null)
+            {
+                cameraRig = GetComponentInChildren<ThirdPersonCamera>(true);
+                if (cameraRig == null)
+                {
+                    cameraRig = FindFirstObjectByType<ThirdPersonCamera>();
+                }
+            }
+
+            _rb.freezeRotation = true;
+            _rb.interpolation = RigidbodyInterpolation.Interpolate;
+            _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            ApplyCapsuleHeight(standingHeight);
         }
 
         private void Start()
         {
-            _currentHeight = standingHeight;
-            _currentCameraY = standingCameraY;
-            ApplyControllerHeight(_currentHeight);
-
-            _yaw = transform.eulerAngles.y;
-
-            if (cameraRoot != null)
-            {
-                _cameraRootDefaultLocalPos = cameraRoot.localPosition;
-                float rawPitch = cameraRoot.localEulerAngles.x;
-                if (rawPitch > 180f)
-                {
-                    rawPitch -= 360f;
-                }
-
-                _pitch = Mathf.Clamp(rawPitch, minPitch, maxPitch);
-            }
-
-            if (playerCamera != null)
-            {
-                _cameraDefaultLocalPos = playerCamera.transform.localPosition;
-                playerCamera.fieldOfView = baseFov;
-
-                if (cameraRoot != null &&
-                    playerCamera.transform != cameraRoot &&
-                    _cameraDefaultLocalPos.sqrMagnitude > 0.25f)
-                {
-                    Debug.LogWarning(
-                        $"[PlayerController] '{playerCamera.name}' localPosition is {_cameraDefaultLocalPos} under '{cameraRoot.name}'. " +
-                        "Reset Main Camera's Local Position to (0, 0, 0) so first-person view and interaction raycasts start at eye level.",
-                        playerCamera);
-                }
-            }
-
             if (lockCursorOnStart)
             {
                 SetCursorLocked(true);
@@ -162,190 +137,27 @@ namespace WheresMyLeftSock.Player
 
         private void Update()
         {
-            UpdateSpeedMultiplierTimer();
+            if (_speedMultiplierTimer > 0f)
+            {
+                _speedMultiplierTimer -= Time.deltaTime;
+                if (_speedMultiplierTimer <= 0f)
+                {
+                    _speedMultiplier = 1f;
+                }
+            }
 
             if (!_controlsEnabled)
             {
-                return;
-            }
-
-            HandleLook();
-            HandleCrouch();
-            HandleMovement();
-            HandleCameraJuice();
-        }
-
-        private void OnValidate()
-        {
-            walkSpeed = Mathf.Max(0.5f, walkSpeed);
-            sprintSpeed = Mathf.Max(walkSpeed, sprintSpeed);
-            crouchSpeed = Mathf.Max(0.5f, crouchSpeed);
-
-            standingHeight = Mathf.Max(0.6f, standingHeight);
-            crouchingHeight = Mathf.Clamp(crouchingHeight, 0.4f, standingHeight - 0.1f);
-            standingCameraY = Mathf.Max(0.3f, standingCameraY);
-            crouchingCameraY = Mathf.Clamp(crouchingCameraY, 0.2f, standingCameraY - 0.05f);
-
-            if (minPitch > maxPitch)
-            {
-                minPitch = maxPitch - 10f;
-            }
-
-            if (_controller == null)
-            {
-                _controller = GetComponent<CharacterController>();
-            }
-
-            if (_controller != null && !Application.isPlaying)
-            {
-                ApplyControllerHeight(standingHeight);
-            }
-        }
-
-        private void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            Rigidbody body = hit.collider.attachedRigidbody;
-            if (body == null || body.isKinematic)
-            {
-                return;
-            }
-
-            if (_interactionManager != null && body == _interactionManager.HeldBody)
-            {
-                return;
-            }
-
-            if (hit.moveDirection.y < -0.3f)
-            {
-                return;
-            }
-
-            Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
-            if (pushDir.sqrMagnitude < 0.0001f)
-            {
-                return;
-            }
-
-            body.WakeUp();
-            float massFactor = 1f / Mathf.Clamp(body.mass, 0.5f, 4f);
-            Vector3 pushVel = pushDir.normalized * (pushClutterPower * massFactor);
-            Vector3 currentBodyVel = body.linearVelocity;
-            body.linearVelocity = new Vector3(
-                Mathf.Lerp(currentBodyVel.x, pushVel.x, 0.5f),
-                currentBodyVel.y,
-                Mathf.Lerp(currentBodyVel.z, pushVel.z, 0.5f));
-        }
-
-        /// <summary>
-        /// Enables or disables player locomotion and look input (useful for menus and end screens).
-        /// </summary>
-        public void SetControlsEnabled(bool enabled)
-        {
-            _controlsEnabled = enabled;
-            _input.SetGameplayInputEnabled(enabled);
-
-            if (!enabled)
-            {
-                _horizontalVelocity = Vector3.zero;
-                _currentVelocity = Vector3.zero;
+                MoveInputWorld = Vector3.zero;
                 IsSprinting = false;
-            }
-        }
-
-        /// <summary>
-        /// Locks or unlocks the mouse cursor for first-person look vs UI interaction.
-        /// </summary>
-        public void SetCursorLocked(bool locked)
-        {
-            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !locked;
-        }
-
-        /// <summary>
-        /// Temporarily scales horizontal movement speed (used by hazards like puddles or toys).
-        /// </summary>
-        public void ApplySpeedMultiplier(float multiplier, float duration)
-        {
-            _externalSpeedMultiplier = Mathf.Clamp(multiplier, 0.1f, 2f);
-            _speedMultiplierTimer = Mathf.Max(0f, duration);
-        }
-
-        private void ResolveCameraReferences()
-        {
-            if (playerCamera == null)
-            {
-                playerCamera = GetComponentInChildren<Camera>(true);
-            }
-
-            if (cameraRoot == null && playerCamera != null)
-            {
-                Transform parent = playerCamera.transform.parent;
-                cameraRoot = (parent != null && parent != transform) ? parent : playerCamera.transform;
-            }
-
-            if (cameraRoot == null)
-            {
-                Debug.LogWarning(
-                    $"[PlayerController] No CameraRoot or Camera found under '{name}'. Assign them in the Inspector.",
-                    this);
-            }
-        }
-
-        private void UpdateSpeedMultiplierTimer()
-        {
-            if (_speedMultiplierTimer <= 0f)
-            {
                 return;
             }
 
-            _speedMultiplierTimer -= Time.deltaTime;
-            if (_speedMultiplierTimer <= 0f)
+            if (_input.JumpPressedThisFrame)
             {
-                _externalSpeedMultiplier = 1f;
-                _speedMultiplierTimer = 0f;
-            }
-        }
-
-        private void HandleLook()
-        {
-            if (cameraRoot == null)
-            {
-                return;
+                _jumpBufferTimer = jumpBufferTime;
             }
 
-            if (lockCursorOnStart && Cursor.lockState != CursorLockMode.Locked)
-            {
-                if (_input.GrabPressedThisFrame)
-                {
-                    SetCursorLocked(true);
-                }
-
-                return;
-            }
-
-            Vector2 look = _input.LookInput;
-            if (look.sqrMagnitude < 0.000001f)
-            {
-                return;
-            }
-
-            if (_input.IsLookUsingPointer)
-            {
-                _yaw += look.x * mouseSensitivity;
-                _pitch -= look.y * mouseSensitivity;
-            }
-            else
-            {
-                _yaw += look.x * gamepadLookSpeed * Time.deltaTime;
-                _pitch -= look.y * gamepadLookSpeed * Time.deltaTime;
-            }
-
-            _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
-            transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
-        }
-
-        private void HandleCrouch()
-        {
             if (crouchMode == CrouchMode.Hold)
             {
                 _wantsCrouch = _input.IsCrouchHeld;
@@ -355,177 +167,296 @@ namespace WheresMyLeftSock.Player
                 _wantsCrouch = !_wantsCrouch;
             }
 
-            if (_wantsCrouch)
+            // camera-relative move direction
+            Vector2 move = _input.MoveInput;
+            if (move.sqrMagnitude > 1f)
             {
-                _isCrouching = true;
-            }
-            else if (_isCrouching && CanStandUp())
-            {
-                _isCrouching = false;
+                move.Normalize();
             }
 
-            float targetHeight = _isCrouching ? crouchingHeight : standingHeight;
-            float targetCamY = _isCrouching ? crouchingCameraY : standingCameraY;
-            float lerpT = 1f - Mathf.Exp(-crouchTransitionSpeed * Time.deltaTime);
+            Transform cam = CameraTransform;
+            Vector3 fwd = cam != null ? Vector3.ProjectOnPlane(cam.forward, Vector3.up).normalized : transform.forward;
+            if (fwd.sqrMagnitude < 0.01f)
+            {
+                fwd = transform.forward;
+            }
 
-            _currentHeight = Mathf.Lerp(_currentHeight, targetHeight, lerpT);
-            _currentCameraY = Mathf.Lerp(_currentCameraY, targetCamY, lerpT);
-            ApplyControllerHeight(_currentHeight);
+            Vector3 right = Vector3.Cross(Vector3.up, fwd);
+            MoveInputWorld = fwd * move.y + right * move.x;
+            IsSprinting = _input.IsSprintHeld && move.sqrMagnitude > 0.04f && !IsCrouching && !IsKnockedDown;
         }
 
-        private void HandleMovement()
+        private void FixedUpdate()
         {
-            bool grounded = _controller.isGrounded;
-            _coyoteTimer = grounded ? coyoteTime : _coyoteTimer - Time.deltaTime;
-            _jumpBufferTimer = _input.JumpPressedThisFrame ? jumpBufferTime : _jumpBufferTimer - Time.deltaTime;
-
-            Vector2 moveInput = _input.MoveInput;
-            if (moveInput.sqrMagnitude > 1f)
+            float dt = Time.fixedDeltaTime;
+            if (_knockTimer > 0f)
             {
-                moveInput.Normalize();
+                _knockTimer -= dt;
+                if (_knockTimer <= 0f)
+                {
+                    _bonkGrace = 0.8f; // don't instantly re-bonk while getting up
+                }
+            }
+            else if (_bonkGrace > 0f)
+            {
+                _bonkGrace -= dt;
             }
 
-            bool hasMoveInput = moveInput.sqrMagnitude > 0.01f;
-            IsSprinting = _input.IsSprintHeld && hasMoveInput && (!_isCrouching || canSprintWhileCrouching);
-
-            float targetSpeed = _isCrouching ? crouchSpeed : (IsSprinting ? sprintSpeed : walkSpeed);
-            targetSpeed *= _externalSpeedMultiplier;
-
-            Vector3 wishDir = transform.right * moveInput.x + transform.forward * moveInput.y;
-            Vector3 targetHorizontalVel = wishDir * targetSpeed;
-
-            float accel = grounded
-                ? (hasMoveInput ? groundAcceleration : groundDeceleration)
-                : airAcceleration;
-
-            _horizontalVelocity = Vector3.MoveTowards(_horizontalVelocity, targetHorizontalVel, accel * Time.deltaTime);
-
-            if (grounded && _verticalVelocity < 0f)
+            if (_jumpCooldown > 0f)
             {
-                _verticalVelocity = groundedStickForce;
+                _jumpCooldown -= dt;
             }
 
-            if (_jumpBufferTimer > 0f && _coyoteTimer > 0f)
+            bool wasGrounded = IsGrounded;
+            IsGrounded = CheckGround(out Vector3 groundNormal);
+            _coyoteTimer = IsGrounded ? coyoteTime : _coyoteTimer - dt;
+            _jumpBufferTimer -= dt;
+
+            Vector3 v = _rb.linearVelocity;
+            if (IsGrounded && !wasGrounded)
             {
-                _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                _jumpBufferTimer = 0f;
-                _coyoteTimer = 0f;
+                Landed?.Invoke(_lastFallSpeed);
             }
 
-            _verticalVelocity += gravity * Time.deltaTime;
+            _lastFallSpeed = Mathf.Max(0f, -v.y);
 
-            Vector3 frameMotion = (_horizontalVelocity + Vector3.up * _verticalVelocity) * Time.deltaTime;
-            CollisionFlags flags = _controller.Move(frameMotion);
+            UpdateCrouch(dt);
 
-            if ((flags & CollisionFlags.Above) != 0 && _verticalVelocity > 0f)
+            // --- horizontal: chase target velocity with limited acceleration ---
+            Vector3 planar = new Vector3(v.x, 0f, v.z);
+            float targetSpeed = IsCrouching ? crouchSpeed : (IsSprinting ? sprintSpeed : walkSpeed);
+            targetSpeed *= _speedMultiplier;
+            Vector3 wish = (_controlsEnabled && !IsKnockedDown) ? MoveInputWorld * targetSpeed : Vector3.zero;
+
+            float accel;
+            IsSkidding = false;
+            if (IsKnockedDown)
             {
-                _verticalVelocity = 0f;
+                accel = IsGrounded ? knockedDownFriction : 0f;
             }
-
-            IsGrounded = _controller.isGrounded;
-            _currentVelocity = _horizontalVelocity + Vector3.up * _verticalVelocity;
-        }
-
-        private void HandleCameraJuice()
-        {
-            float targetTilt = enableStrafeTilt ? -_input.MoveInput.x * maxStrafeTiltDegrees : 0f;
-            float tiltT = 1f - Mathf.Exp(-strafeTiltSpeed * Time.deltaTime);
-            _currentStrafeTilt = Mathf.Lerp(_currentStrafeTilt, targetTilt, tiltT);
-
-            if (cameraRoot != null)
+            else if (!IsGrounded)
             {
-                cameraRoot.localRotation = Quaternion.Euler(_pitch, 0f, _currentStrafeTilt);
+                accel = airAcceleration;
             }
-
-            if (playerCamera != null)
+            else if (wish.sqrMagnitude < 0.01f)
             {
-                bool activeSprint = IsSprinting && _horizontalVelocity.sqrMagnitude > (walkSpeed * walkSpeed * 0.5f);
-                float targetFov = baseFov + (activeSprint ? sprintFovBoost : 0f);
-                float fovT = 1f - Mathf.Exp(-fovLerpSpeed * Time.deltaTime);
-                playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFov, fovT);
+                accel = groundBraking;
             }
-
-            Vector3 targetBob = Vector3.zero;
-            if (enableHeadBob && IsGrounded && _horizontalVelocity.magnitude > 0.25f)
+            else if (planar.magnitude > 2.5f && Vector3.Dot(wish.normalized, planar.normalized) < -0.25f)
             {
-                float freq = IsSprinting ? sprintBobFrequency : walkBobFrequency;
-                float amp = IsSprinting ? sprintBobAmplitude : walkBobAmplitude;
-                _bobTimer += Time.deltaTime * freq;
-                targetBob = new Vector3(
-                    Mathf.Cos(_bobTimer * 0.5f) * amp * 0.5f,
-                    Mathf.Sin(_bobTimer) * amp,
-                    0f);
+                accel = skidAcceleration;
+                IsSkidding = true;
             }
             else
             {
-                _bobTimer = 0f;
+                accel = groundAcceleration;
             }
 
-            float bobDecayT = 1f - Mathf.Exp(-12f * Time.deltaTime);
-            _currentBobOffset = Vector3.Lerp(_currentBobOffset, targetBob, bobDecayT);
+            Vector3 change = Vector3.ClampMagnitude(wish - planar, accel * dt);
+            if (IsGrounded)
+            {
+                change = Vector3.ProjectOnPlane(change, groundNormal);
+            }
 
-            if (cameraRoot == null)
+            _rb.AddForce(change, ForceMode.VelocityChange);
+
+            // --- jump ---
+            if (_jumpBufferTimer > 0f && _coyoteTimer > 0f && _jumpCooldown <= 0f && !IsKnockedDown && _controlsEnabled)
+            {
+                float jumpVel = Mathf.Sqrt(2f * -Physics.gravity.y * jumpHeight);
+                v = _rb.linearVelocity;
+                _rb.linearVelocity = new Vector3(v.x, jumpVel, v.z);
+                _jumpBufferTimer = 0f;
+                _coyoteTimer = 0f;
+                _jumpCooldown = 0.2f;
+                IsGrounded = false;
+                Jumped?.Invoke();
+            }
+
+            // --- snappier falling ---
+            if (_rb.linearVelocity.y < 0f && !IsGrounded)
+            {
+                _rb.AddForce(Physics.gravity * (fallGravityMultiplier - 1f), ForceMode.Acceleration);
+            }
+
+            // --- facing ---
+            UpdateFacing(dt, wish);
+
+            // --- book-keeping for the wobble rig ---
+            Vector3 newPlanar = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+            Vector3 rawAccel = (newPlanar - _lastPlanarVelocity) / dt;
+            _smoothedAccel = Vector3.Lerp(_smoothedAccel, rawAccel, 1f - Mathf.Exp(-18f * dt));
+            _lastPlanarVelocity = newPlanar;
+            _lastPlanarSpeed = newPlanar.magnitude;
+        }
+
+        private void UpdateFacing(float dt, Vector3 wish)
+        {
+            if (IsKnockedDown)
             {
                 return;
             }
 
-            if (playerCamera != null && playerCamera.transform != cameraRoot)
+            Vector3 faceDir = Vector3.zero;
+            bool holding = _interaction != null && _interaction.IsHoldingObject;
+            Transform cam = CameraTransform;
+            if (holding && cam != null)
             {
-                cameraRoot.localPosition = new Vector3(
-                    _cameraRootDefaultLocalPos.x,
-                    _currentCameraY,
-                    _cameraRootDefaultLocalPos.z);
-                playerCamera.transform.localPosition = _cameraDefaultLocalPos + _currentBobOffset;
+                faceDir = Vector3.ProjectOnPlane(cam.forward, Vector3.up);
             }
-            else
+            else if (wish.sqrMagnitude > 0.01f)
             {
-                cameraRoot.localPosition = new Vector3(
-                    _cameraRootDefaultLocalPos.x + _currentBobOffset.x,
-                    _currentCameraY + _currentBobOffset.y,
-                    _cameraRootDefaultLocalPos.z + _currentBobOffset.z);
+                faceDir = wish;
             }
+
+            if (faceDir.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            Quaternion target = Quaternion.LookRotation(faceDir.normalized, Vector3.up);
+            _rb.MoveRotation(Quaternion.RotateTowards(_rb.rotation, target, turnSpeedDegrees * dt));
+        }
+
+        private void UpdateCrouch(float dt)
+        {
+            bool want = _wantsCrouch && _controlsEnabled && !IsKnockedDown;
+            if (want)
+            {
+                IsCrouching = true;
+            }
+            else if (IsCrouching && CanStandUp())
+            {
+                IsCrouching = false;
+            }
+
+            CrouchBlend = Mathf.MoveTowards(CrouchBlend, IsCrouching ? 1f : 0f, crouchTransitionSpeed * dt * 0.5f);
+            ApplyCapsuleHeight(Mathf.Lerp(standingHeight, crouchingHeight, CrouchBlend));
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (IsKnockedDown || _bonkGrace > 0f || collision.contactCount == 0)
+            {
+                return;
+            }
+
+            Rigidbody other = collision.rigidbody;
+            if (other != null && !other.isKinematic)
+            {
+                return; // shoving clutter is fine
+            }
+
+            ContactPoint contact = collision.GetContact(0);
+            if (Mathf.Abs(contact.normal.y) > 0.5f)
+            {
+                return; // floors / ceilings
+            }
+
+            float into = Vector3.Dot(_lastPlanarVelocity, -contact.normal);
+            if (_lastPlanarSpeed >= bonkSpeed && into >= bonkSpeed * 0.75f)
+            {
+                Knockdown(bonkKnockdownDuration, backwards: true);
+                _rb.AddForce(contact.normal * bonkBounce + Vector3.up * 2.5f, ForceMode.VelocityChange);
+                if (cameraRig != null)
+                {
+                    cameraRig.AddShake(0.6f);
+                }
+            }
+        }
+
+        /// <summary>Flops the character over for a moment (slips, bonks). Drops whatever you're holding.</summary>
+        public void Knockdown(float duration, bool backwards = false)
+        {
+            bool wasDown = IsKnockedDown;
+            _knockTimer = Mathf.Max(_knockTimer, duration);
+            KnockdownPitch = backwards ? -85f : 85f;
+            if (_interaction != null)
+            {
+                _interaction.ForceDropHeldObject();
+            }
+
+            if (!wasDown)
+            {
+                KnockedDown?.Invoke();
+            }
+        }
+
+        public void SetControlsEnabled(bool enabled)
+        {
+            _controlsEnabled = enabled;
+            _input.SetGameplayInputEnabled(enabled);
+            if (!enabled)
+            {
+                MoveInputWorld = Vector3.zero;
+                IsSprinting = false;
+            }
+        }
+
+        public void SetCursorLocked(bool locked)
+        {
+            Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+            Cursor.visible = !locked;
+        }
+
+        /// <summary>Temporarily scales movement speed (hazards).</summary>
+        public void ApplySpeedMultiplier(float multiplier, float duration)
+        {
+            _speedMultiplier = Mathf.Clamp(multiplier, 0.1f, 2f);
+            _speedMultiplierTimer = Mathf.Max(0f, duration);
+        }
+
+        private bool CheckGround(out Vector3 normal)
+        {
+            normal = Vector3.up;
+            float r = _capsule.radius * 0.9f;
+            Vector3 origin = transform.position + Vector3.up * (r + 0.05f);
+            int count = Physics.SphereCastNonAlloc(origin, r, Vector3.down, _groundHits, 0.05f + groundCheckDistance,
+                groundMask, QueryTriggerInteraction.Ignore);
+
+            float minY = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
+            Rigidbody held = _interaction != null ? _interaction.HeldBody : null;
+            for (int i = 0; i < count; i++)
+            {
+                RaycastHit h = _groundHits[i];
+                if (h.collider == null || h.collider.transform.IsChildOf(transform))
+                {
+                    continue;
+                }
+
+                if (held != null && h.rigidbody == held)
+                {
+                    continue;
+                }
+
+                if (h.normal.y >= minY && h.distance > 0f)
+                {
+                    normal = h.normal;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool CanStandUp()
         {
-            float radius = Mathf.Max(0.05f, _controller.radius * 0.9f);
-            float lowerCenterY = Mathf.Max(radius, crouchingHeight - radius);
-            float upperCenterY = standingHeight - radius;
-
-            if (upperCenterY <= lowerCenterY)
+            float r = _capsule.radius * 0.9f;
+            Vector3 bottom = transform.position + Vector3.up * (crouchingHeight - r);
+            Vector3 top = transform.position + Vector3.up * (standingHeight - r);
+            int count = Physics.OverlapCapsuleNonAlloc(bottom, top, r, _ceilingHits, ~0, QueryTriggerInteraction.Ignore);
+            Rigidbody held = _interaction != null ? _interaction.HeldBody : null;
+            for (int i = 0; i < count; i++)
             {
-                return true;
-            }
-
-            Vector3 bottom = transform.position + Vector3.up * lowerCenterY;
-            Vector3 top = transform.position + Vector3.up * upperCenterY;
-
-            int hitCount = Physics.OverlapCapsuleNonAlloc(
-                bottom,
-                top,
-                radius,
-                _ceilingOverlapBuffer,
-                ceilingCheckMask,
-                QueryTriggerInteraction.Ignore);
-
-            Rigidbody heldBody = _interactionManager != null ? _interactionManager.HeldBody : null;
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                Collider col = _ceilingOverlapBuffer[i];
-                if (col == null)
+                Collider c = _ceilingHits[i];
+                if (c == null || c.transform.IsChildOf(transform) || (held != null && c.attachedRigidbody == held))
                 {
                     continue;
                 }
 
-                if (col.transform.IsChildOf(transform))
+                if (c.attachedRigidbody != null && !c.attachedRigidbody.isKinematic)
                 {
-                    continue;
-                }
-
-                if (heldBody != null && col.attachedRigidbody == heldBody)
-                {
-                    continue;
+                    continue; // clutter on your head just gets shoved
                 }
 
                 return false;
@@ -534,10 +465,15 @@ namespace WheresMyLeftSock.Player
             return true;
         }
 
-        private void ApplyControllerHeight(float height)
+        private void ApplyCapsuleHeight(float height)
         {
-            _controller.height = height;
-            _controller.center = new Vector3(0f, height * 0.5f, 0f);
+            if (_capsule == null)
+            {
+                return;
+            }
+
+            _capsule.height = height;
+            _capsule.center = new Vector3(0f, height * 0.5f, 0f);
         }
     }
 }

@@ -74,6 +74,21 @@ namespace WheresMyLeftSock.Player
         [Tooltip("Optional child transform placed in front of the camera for held props.")]
         [SerializeField] private Transform holdPoint = default;
 
+        [Tooltip("Third-person: carried props float holdDistance in front of this point (player chest) along the camera's aim.")]
+        [SerializeField] private Transform carryOrigin = default;
+
+        [Tooltip("Third-person: start the aim ray level with the player instead of at the camera, so reach is measured from the character.")]
+        [SerializeField] private bool rayStartsAtPlayerDepth = true;
+
+        [Tooltip("Third-person: how far (m) looking up/down raises/lowers the carried prop.")]
+        [SerializeField] private float carryVerticalRange = 0.7f;
+
+        [Tooltip("Third-person: throws fly toward whatever the crosshair is on instead of straight along the camera.")]
+        [SerializeField] private bool throwTowardCrosshair = true;
+
+        [Tooltip("Aiming at a cabinet body selects its nearest door/drawer within this distance (m).")]
+        [SerializeField] private float childFurnitureRadius = 0.6f;
+
         [Header("Raycast & Layers")]
         [Min(0.5f)]
         [SerializeField] private float interactionRange = 2.5f;
@@ -147,7 +162,7 @@ namespace WheresMyLeftSock.Player
 
         private void Start()
         {
-            if (cameraTransform != null && Vector3.Distance(cameraTransform.position, transform.position) > 2.5f)
+            if (cameraTransform != null && Vector3.Distance(cameraTransform.position, transform.position) > 8f)
             {
                 Debug.LogWarning(
                     $"[InteractionManager] '{cameraTransform.name}' is {Vector3.Distance(cameraTransform.position, transform.position):F2}m away from '{name}'. " +
@@ -257,7 +272,7 @@ namespace WheresMyLeftSock.Player
             }
 
             Gizmos.color = Color.cyan;
-            Vector3 start = originTransform.position;
+            Vector3 start = Application.isPlaying && cameraTransform != null ? GetAimRayOrigin() : originTransform.position;
             Gizmos.DrawLine(start, start + originTransform.forward * interactionRange);
 
             Gizmos.color = Color.yellow;
@@ -323,8 +338,9 @@ namespace WheresMyLeftSock.Player
             _hoveredInteractable = null;
             _hoveredClutter = null;
 
+            Vector3 rayOrigin = GetAimRayOrigin();
             int hitCount = Physics.RaycastNonAlloc(
-                cameraTransform.position,
+                rayOrigin,
                 cameraTransform.forward,
                 _raycastHits,
                 interactionRange,
@@ -333,6 +349,7 @@ namespace WheresMyLeftSock.Player
 
             Collider closestCollider = null;
             float closestDistance = float.MaxValue;
+            Vector3 closestPoint = Vector3.zero;
 
             for (int i = 0; i < hitCount; i++)
             {
@@ -346,6 +363,7 @@ namespace WheresMyLeftSock.Player
                 {
                     closestDistance = hit.distance;
                     closestCollider = hit.collider;
+                    closestPoint = hit.point;
                 }
             }
 
@@ -358,7 +376,7 @@ namespace WheresMyLeftSock.Player
             {
                 float assistMaxDistance = Mathf.Min(interactionRange, closestDistance);
                 int assistHitCount = Physics.SphereCastNonAlloc(
-                    cameraTransform.position,
+                    rayOrigin,
                     interactionAssistRadius,
                     cameraTransform.forward,
                     _sphereCastHits,
@@ -395,7 +413,45 @@ namespace WheresMyLeftSock.Player
                 }
             }
 
+            // Aiming at a cabinet's body (e.g. the countertop)? Target its nearest door/drawer instead.
+            if (closestCollider != null && TryResolveChildFurniture(closestCollider, closestPoint))
+            {
+                return;
+            }
+
             SetHoverState(default);
+        }
+
+        private bool TryResolveChildFurniture(Collider col, Vector3 point)
+        {
+            IInteractable[] kids = col.GetComponentsInChildren<IInteractable>();
+            IInteractable best = null;
+            float bestDist = childFurnitureRadius;
+            for (int i = 0; i < kids.Length; i++)
+            {
+                IInteractable k = kids[i];
+                if (k == null || !k.CanInteract || k.Category != InteractionCategory.Furniture || !(k is Component c))
+                {
+                    continue;
+                }
+
+                Renderer r = c.GetComponentInChildren<Renderer>();
+                float d = r != null ? Vector3.Distance(r.bounds.ClosestPoint(point), point) : Vector3.Distance(c.transform.position, point);
+                if (d < bestDist)
+                {
+                    bestDist = d;
+                    best = k;
+                }
+            }
+
+            if (best == null)
+            {
+                return false;
+            }
+
+            _hoveredInteractable = best;
+            SetHoverState(new InteractionHoverState(best.Category, best.InteractionPrompt, ((Component)best).gameObject, isHoldingObject: false));
+            return true;
         }
 
         private bool HasValidTarget(Collider col)
@@ -562,7 +618,36 @@ namespace WheresMyLeftSock.Player
                     : Vector3.zero;
                 body.linearVelocity = new Vector3(inheritedVel.x, Mathf.Max(0f, inheritedVel.y), inheritedVel.z);
 
-                Vector3 throwDir = (cameraTransform.forward + Vector3.up * throwUpwardArc).normalized;
+                Vector3 aimDir = cameraTransform.forward;
+                if (throwTowardCrosshair)
+                {
+                    Vector3 aimPoint = cameraTransform.position + cameraTransform.forward * 30f;
+                    int n = Physics.RaycastNonAlloc(cameraTransform.position, cameraTransform.forward, _raycastHits, 30f,
+                        obstructionLayerMask, QueryTriggerInteraction.Ignore);
+                    float best = float.MaxValue;
+                    for (int i = 0; i < n; i++)
+                    {
+                        RaycastHit h = _raycastHits[i];
+                        if (h.collider == null || h.collider.transform.IsChildOf(transform) || h.rigidbody == body)
+                        {
+                            continue;
+                        }
+
+                        if (h.distance < best)
+                        {
+                            best = h.distance;
+                            aimPoint = h.point;
+                        }
+                    }
+
+                    Vector3 toAim = aimPoint - body.worldCenterOfMass;
+                    if (toAim.sqrMagnitude > 0.25f)
+                    {
+                        aimDir = toAim.normalized;
+                    }
+                }
+
+                Vector3 throwDir = (aimDir + Vector3.up * throwUpwardArc).normalized;
                 body.AddForce(throwDir * (throwForce * throwMultiplier), ForceMode.Impulse);
 
                 if (throwSpinTorque > 0f)
@@ -575,12 +660,39 @@ namespace WheresMyLeftSock.Player
             UpdateHoverTarget();
         }
 
-        private Vector3 ComputeWallClearedHoldPosition()
+        /// <summary>Camera ray origin pushed forward to the player's depth (third-person reach).</summary>
+        private Vector3 GetAimRayOrigin()
         {
             Vector3 origin = cameraTransform.position;
-            Vector3 idealTarget = holdPoint != null
-                ? holdPoint.position + cameraTransform.forward * _heldClutter.HoldDistanceOffset
-                : origin + cameraTransform.forward * Mathf.Max(minHoldDistance, holdDistance + _heldClutter.HoldDistanceOffset);
+            if (!rayStartsAtPlayerDepth)
+            {
+                return origin;
+            }
+
+            Vector3 chest = transform.position + Vector3.up * 1.1f;
+            float depth = Vector3.Dot(chest - origin, cameraTransform.forward);
+            return depth > 0f ? origin + cameraTransform.forward * depth : origin;
+        }
+
+        private Vector3 ComputeWallClearedHoldPosition()
+        {
+            Vector3 origin = carryOrigin != null ? carryOrigin.position : cameraTransform.position;
+            Vector3 idealTarget;
+            if (carryOrigin != null)
+            {
+                // carry at chest height in front of the character; camera pitch only nudges it up/down
+                Vector3 camFwd = cameraTransform.forward;
+                Vector3 flat = Vector3.ProjectOnPlane(camFwd, Vector3.up);
+                flat = flat.sqrMagnitude > 0.001f ? flat.normalized : transform.forward;
+                float dist = Mathf.Max(minHoldDistance, holdDistance + _heldClutter.HoldDistanceOffset);
+                idealTarget = origin + flat * dist + Vector3.up * (Mathf.Clamp(camFwd.y, -0.6f, 0.8f) * carryVerticalRange);
+            }
+            else
+            {
+                idealTarget = holdPoint != null
+                    ? holdPoint.position + cameraTransform.forward * _heldClutter.HoldDistanceOffset
+                    : origin + cameraTransform.forward * Mathf.Max(minHoldDistance, holdDistance + _heldClutter.HoldDistanceOffset);
+            }
 
             Vector3 toIdeal = idealTarget - origin;
             float idealDistance = toIdeal.magnitude;
