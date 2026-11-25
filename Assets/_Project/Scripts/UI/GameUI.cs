@@ -37,12 +37,17 @@ namespace WheresMyLeftSock.UI
         {
             Instance = this;
             BuildCanvas();
+            if (GetComponent<PauseMenuUI>() == null) gameObject.AddComponent<PauseMenuUI>();
         }
 
         private void Start()
         {
             _gm = GameManager.Instance;
-            if (_gm != null) _gm.OnGameStateChanged += HandleState;
+            if (_gm != null)
+            {
+                _gm.OnGameStateChanged += HandleState;
+                _gm.OnPauseChanged += HandlePause;
+            }
             if (OutfitManager.Instance != null) OutfitManager.Instance.OnItemCollected += HandleCollected;
             TimerEscalationManager.OnToast += QueueToast;
             RefreshChecklist();
@@ -51,7 +56,11 @@ namespace WheresMyLeftSock.UI
 
         private void OnDestroy()
         {
-            if (_gm != null) _gm.OnGameStateChanged -= HandleState;
+            if (_gm != null)
+            {
+                _gm.OnGameStateChanged -= HandleState;
+                _gm.OnPauseChanged -= HandlePause;
+            }
             if (OutfitManager.Instance != null) OutfitManager.Instance.OnItemCollected -= HandleCollected;
             TimerEscalationManager.OnToast -= QueueToast;
             if (Instance == this) Instance = null;
@@ -162,9 +171,18 @@ namespace WheresMyLeftSock.UI
             }
         }
 
+        private void HandlePause(bool paused)
+        {
+            if (_gm != null)
+            {
+                _checklist.gameObject.SetActive(_gm.CurrentState == GameState.Playing && !paused);
+            }
+        }
+
         private void HandleState(GameState s)
         {
-            _checklist.gameObject.SetActive(s == GameState.Playing);
+            bool paused = _gm != null && _gm.IsPaused;
+            _checklist.gameObject.SetActive(s == GameState.Playing && !paused);
             if (s == GameState.Win || s == GameState.Lose)
             {
                 StartCoroutine(FillEndScreen(s == GameState.Lose));

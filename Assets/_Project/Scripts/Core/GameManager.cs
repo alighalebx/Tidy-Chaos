@@ -33,8 +33,10 @@ namespace WheresMyLeftSock.Core
 
         public event Action<GameState> OnGameStateChanged;
         public event Action<float, float> OnTimerUpdated;
+        public event Action<bool> OnPauseChanged;
 
         public GameState CurrentState { get; private set; } = GameState.Menu;
+        public bool IsPaused { get; private set; }
         public float TimeRemaining { get; private set; }
         public float RoundDuration => roundDurationSeconds;
         public float NormalizedTimeRemaining =>
@@ -70,7 +72,7 @@ namespace WheresMyLeftSock.Core
 
         private void Update()
         {
-            if (CurrentState != GameState.Playing)
+            if (CurrentState != GameState.Playing || IsPaused)
             {
                 return;
             }
@@ -93,6 +95,11 @@ namespace WheresMyLeftSock.Core
         {
             if (Instance == this)
             {
+                if (IsPaused)
+                {
+                    Time.timeScale = 1f;
+                }
+
                 Instance = null;
             }
         }
@@ -102,7 +109,7 @@ namespace WheresMyLeftSock.Core
         /// </summary>
         public void EnterMenu()
         {
-            Time.timeScale = 1f;
+            ClearPauseIfNeeded();
             TimeRemaining = roundDurationSeconds;
             CurrentState = GameState.Menu;
             SetPlayerActive(false);
@@ -112,11 +119,11 @@ namespace WheresMyLeftSock.Core
         }
 
         /// <summary>
-        /// Starts or resets the countdown run and enables first-person player controls.
+        /// Starts or resets the countdown run and enables player controls.
         /// </summary>
         public void StartRun()
         {
-            Time.timeScale = 1f;
+            ClearPauseIfNeeded();
             TimeRemaining = roundDurationSeconds;
             CurrentState = GameState.Playing;
             SetPlayerActive(true);
@@ -135,6 +142,7 @@ namespace WheresMyLeftSock.Core
                 return;
             }
 
+            ClearPauseIfNeeded();
             CurrentState = GameState.Win;
             SetPlayerActive(false);
             OnGameStateChanged?.Invoke(CurrentState);
@@ -150,6 +158,7 @@ namespace WheresMyLeftSock.Core
                 return;
             }
 
+            ClearPauseIfNeeded();
             TimeRemaining = 0f;
             CurrentState = GameState.Lose;
             SetPlayerActive(false);
@@ -157,11 +166,46 @@ namespace WheresMyLeftSock.Core
         }
 
         /// <summary>
+        /// Pauses or resumes the active run without dropping the player's currently held prop.
+        /// </summary>
+        public void SetPaused(bool paused)
+        {
+            if (paused && CurrentState != GameState.Playing)
+            {
+                return;
+            }
+
+            if (IsPaused == paused)
+            {
+                return;
+            }
+
+            IsPaused = paused;
+            Time.timeScale = paused ? 0f : 1f;
+
+            if (playerController != null)
+            {
+                playerController.SetControlsEnabled(!paused);
+                playerController.SetCursorLocked(!paused);
+            }
+            else
+            {
+                Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
+                Cursor.visible = paused;
+            }
+
+            OnPauseChanged?.Invoke(IsPaused);
+        }
+
+        public void TogglePause() => SetPaused(!IsPaused);
+
+        /// <summary>
         /// Reloads the active scene cleanly in both Editor Play Mode and built players.
         /// </summary>
         public void RestartRun()
         {
             Time.timeScale = 1f;
+            IsPaused = false;
             Scene activeScene = SceneManager.GetActiveScene();
 
             if (activeScene.buildIndex >= 0)
@@ -181,6 +225,18 @@ namespace WheresMyLeftSock.Core
 #endif
 
             SceneManager.LoadScene(activeScene.name);
+        }
+
+        private void ClearPauseIfNeeded()
+        {
+            Time.timeScale = 1f;
+            if (!IsPaused)
+            {
+                return;
+            }
+
+            IsPaused = false;
+            OnPauseChanged?.Invoke(false);
         }
 
         private void ResolveSceneReferences()

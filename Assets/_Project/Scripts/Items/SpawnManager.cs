@@ -94,10 +94,14 @@ namespace WheresMyLeftSock.Items
                 EnsureCovered(spot, b.size.y);
             }
 
+#if UNITY_EDITOR
             if (logPlacements)
             {
                 Debug.Log($"[SpawnManager] {item.displayName} -> {spot.spotID} ({spot.room}, {spot.concealmentType})");
             }
+#else
+            _ = logPlacements;
+#endif
         }
 
         private void EnsureCovered(HidingSpot spot, float itemHeight)

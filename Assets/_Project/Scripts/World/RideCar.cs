@@ -36,13 +36,29 @@ namespace WheresMyLeftSock.World
             _engine.volume = 0.7f;
             _engine.Play();
 
-            if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged += HandleState;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnGameStateChanged += HandleState;
+                GameManager.Instance.OnPauseChanged += HandlePause;
+            }
         }
 
         private void OnDestroy()
         {
-            if (GameManager.Instance != null) GameManager.Instance.OnGameStateChanged -= HandleState;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnGameStateChanged -= HandleState;
+                GameManager.Instance.OnPauseChanged -= HandlePause;
+            }
+
             if (Instance == this) Instance = null;
+        }
+
+        private void HandlePause(bool paused)
+        {
+            if (_engine == null) return;
+            if (paused) _engine.Pause();
+            else if (!_leaving) _engine.UnPause();
         }
 
         private void HandleState(GameState s)
@@ -150,7 +166,7 @@ namespace WheresMyLeftSock.World
             foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
         }
 
-        private static void SpawnSmoke(Vector3 pos)
+        private void SpawnSmoke(Vector3 pos)
         {
             GameObject puff = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Destroy(puff.GetComponent<Collider>());
@@ -159,19 +175,24 @@ namespace WheresMyLeftSock.World
             var mpb = new MaterialPropertyBlock();
             mpb.SetColor("_BaseColor", new Color(0.85f, 0.85f, 0.85f));
             puff.GetComponent<Renderer>().SetPropertyBlock(mpb);
-            puff.AddComponent<SmokePuff>();
+            StartCoroutine(AnimateSmokePuff(puff));
         }
 
-        private class SmokePuff : MonoBehaviour
+        private static IEnumerator AnimateSmokePuff(GameObject puff)
         {
-            private float _t;
-
-            private void Update()
+            float t = 0f;
+            while (t < 0.9f && puff != null)
             {
-                _t += Time.deltaTime;
-                transform.localScale = Vector3.one * (0.4f + _t * 2.2f);
-                transform.position += Vector3.up * Time.deltaTime * 0.8f;
-                if (_t > 0.9f) Destroy(gameObject);
+                float dt = Time.deltaTime;
+                t += dt;
+                puff.transform.localScale = Vector3.one * (0.4f + t * 2.2f);
+                puff.transform.position += Vector3.up * (dt * 0.8f);
+                yield return null;
+            }
+
+            if (puff != null)
+            {
+                Destroy(puff);
             }
         }
     }

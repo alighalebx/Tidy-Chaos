@@ -106,6 +106,7 @@ namespace WheresMyLeftSock.UI
                 {
                     _subscribedGameManager.OnGameStateChanged -= HandleGameStateChanged;
                     _subscribedGameManager.OnTimerUpdated -= HandleTimerUpdated;
+                    _subscribedGameManager.OnPauseChanged -= HandlePauseChanged;
                 }
 
                 _subscribedGameManager = gameManager;
@@ -113,6 +114,7 @@ namespace WheresMyLeftSock.UI
                 {
                     _subscribedGameManager.OnGameStateChanged += HandleGameStateChanged;
                     _subscribedGameManager.OnTimerUpdated += HandleTimerUpdated;
+                    _subscribedGameManager.OnPauseChanged += HandlePauseChanged;
                 }
             }
 
@@ -137,6 +139,7 @@ namespace WheresMyLeftSock.UI
             {
                 _subscribedGameManager.OnGameStateChanged -= HandleGameStateChanged;
                 _subscribedGameManager.OnTimerUpdated -= HandleTimerUpdated;
+                _subscribedGameManager.OnPauseChanged -= HandlePauseChanged;
                 _subscribedGameManager = null;
             }
 
@@ -243,19 +246,31 @@ namespace WheresMyLeftSock.UI
             }
         }
 
-        private void HandleGameStateChanged(GameState state)
+        private void HandlePauseChanged(bool paused)
         {
-            bool isPlaying = state == GameState.Playing;
+            RefreshGameplayReticleVisibility();
+        }
+
+        private void RefreshGameplayReticleVisibility()
+        {
+            bool visible = gameManager != null &&
+                           gameManager.CurrentState == GameState.Playing &&
+                           !gameManager.IsPaused;
 
             if (crosshairImage != null)
             {
-                crosshairImage.gameObject.SetActive(isPlaying);
+                crosshairImage.gameObject.SetActive(visible);
             }
 
             if (hoverPromptText != null)
             {
-                hoverPromptText.gameObject.SetActive(isPlaying);
+                hoverPromptText.gameObject.SetActive(visible);
             }
+        }
+
+        private void HandleGameStateChanged(GameState state)
+        {
+            RefreshGameplayReticleVisibility();
 
             if (endScreenPanel == null)
             {

@@ -1,260 +1,220 @@
 # Project Specification: *Where's My Left Sock?!* (Working Title)
 
-> **Purpose:** This document serves as the single source of truth for **Antigravity Agent** and the developer(s) to scaffold, implement, and polish a 3D first-person comedy-chaos game within a **5-day Game Jam** window.
+> **Purpose:** This document serves as the single source of truth for **Antigravity Agent** and the developers to implement, tune, and ship a 3D third-person physics-comedy game within a **5-day Game Jam** window.
 
 ---
 
 ## 1. Project Overview
 * **Game Jam Theme:** **HIDDEN**
-* **Genre:** 3D First-Person Physics-Comedy / Time-Attack Scavenger Hunt
-* **Core Pitch:** You overslept. Your ride (car/bus) is idling outside, honking, and leaving in 60–90 seconds. You must tear through your messy house—tossing pillows, yanking open drawers, and wrestling with physics clutter—to uncover your **hidden** clothes and essentials before sprinting out the front door.
-* **Target Session Length:** 60–90 seconds per run (highly replayable via randomized hiding spots).
-* **Timeline:** 5 Days.
+* **Genre:** 3D Third-Person Physics-Comedy / Time-Attack Scavenger Hunt
+* **Core Pitch:** You overslept in your pajamas. Your ride is idling outside, honking, and leaving in 60–90 seconds. You must tear through your messy 5-room house—shoving and yeeting pillows, yanking open drawers, dodging slippery puddles and Legos, and wrestling with physics clutter—to uncover your **hidden** clothes and keys before sprinting out the front door.
+* **Target Session Length:** 90 seconds default per run (configurable on `GameManager`; highly replayable via randomized hiding spots).
 * **Timeline:** 5 Days.
 
 ### 1.1 Technical Stack & Imported Assets (Unity URP)
-* **Engine:** Unity 6 (3D Universal Render Pipeline / URP)
-* **Input System:** Unity New Input System (`UnityEngine.InputSystem`) — do NOT use legacy `Input.GetAxis` or `Input.GetKeyDown`.
-* **UI Framework:** uGUI (Canvas + TextMeshPro) for rapid HUD, timer, checklist, and end-screen prototyping. *(Switch to "UI Toolkit" if you prefer USS/UXML.)*
+* **Engine:** Unity 6 (`6000.3.9f1`, 3D Universal Render Pipeline / URP)
+* **Input System:** Unity New Input System (`UnityEngine.InputSystem`, reusing `Assets/InputSystem_Actions.inputactions`) — do NOT use legacy `Input.GetAxis` or `Input.GetKeyDown`.
+* **UI Framework:** uGUI (Canvas + TextMeshPro) via `Phase1DebugHUD` plus runtime-generated `GameUI` (checklist, phone toasts, title card, rank breakdown) and `PauseMenuUI` (`Esc` pause menu, volume/sensitivity settings, controls card & hint strip).
+* **Audio Architecture:** Procedural Web/Synth SFX & chiptune music loop synthesized in code (`Sfx.cs` + `AudioHub.cs` + `GameAudio.cs` + `ImpactSound.cs`) — no external audio files required.
+* **Art & Post-Processing Pipeline:** URP PostFX (`Assets/_Project/Art/PostFX/SeptemberMorning.asset` + runtime panic vignette), 5 switchable color schemes via `PaletteBuilder`, and `Tidy Chaos/` Editor builders (`HouseBuilder`, `PlayerBuilder`, `GameSystemsBuilder`, `PaletteBuilder`, `PostFXBuilder`).
 * **Workspace Rules:**
-  * Put all new scripts, prefabs, scenes, and ScriptableObjects inside `Assets/_Project/`.
+  * Put all new scripts, prefabs, scenes, editor tools, and ScriptableObjects inside `Assets/_Project/`.
   * **Do NOT modify, rename, or move** files inside third-party asset folders.
 * **Available Art Packs:**
   * **Synty POLYGON Sampler Pack** (`Assets/SyntyStudios/`):
-    * `Assets/SyntyStudios/PolygonPrototype/Prefabs/Buildings/Polygon/` (modular walls/floors/doors) & `Assets/SyntyStudios/PolygonPrototype/Prefabs/Props/` (greybox/prototype clutter)
-    * `Assets/SyntyStudios/PolygonCity/Prefabs/Vehicles/` & `Props/` (waiting car/taxi/van outside + urban props)
-    * `Assets/SyntyStudios/PolygonKnights/Prefabs/`, `Assets/SyntyStudios/PolygonAdventure/Prefabs/`, `Assets/SyntyStudios/PolygonStarter/Prefabs/`, and `Assets/SyntyStudios/PolygonSamples/` (absurd decoy items & extra props)
-  * **Kenney Furniture Kit** (`Assets/kenney-furniture-kit-interior-asset-collection/`): Use `Assets/kenney-furniture-kit-interior-asset-collection/Models/FBX format/` (140 `.fbx` interior furniture & clutter props for bedroom, bathroom, hallway, living room, and kitchen hiding spots).
-* **Physics Rule for Imported Props:** Any furniture prop or clutter made grabbable/throwable must use a `BoxCollider` or a **Convex** `MeshCollider` paired with a `Rigidbody` (never a non-convex `MeshCollider` on a dynamic `Rigidbody`).
+    * `Assets/SyntyStudios/PolygonPrototype/Prefabs/Buildings/Polygon/` & `Assets/SyntyStudios/PolygonPrototype/Prefabs/Props/` (props such as vases and bats)
+    * `Assets/SyntyStudios/PolygonCity/Prefabs/Vehicles/` & `Props/` (outside idling `RideCar` vehicle + urban props/clutter)
+    * `Assets/SyntyStudios/PolygonKnights/Prefabs/`, `Assets/SyntyStudios/PolygonAdventure/Prefabs/`, `Assets/SyntyStudios/PolygonStarter/Prefabs/`, and `Assets/SyntyStudios/PolygonSamples/` (kitchenware, laundry baskets/sacks, comical clutter & props)
+  * **Kenney Furniture Kit** (`Assets/kenney-furniture-kit-interior-asset-collection/`): Use `Assets/kenney-furniture-kit-interior-asset-collection/Models/FBX format/` (140 `.fbx` interior walls, floors, furniture, articulated drawers/doors, and clutter props).
+* **Physics Rule for Imported Props:** Any furniture prop or clutter made grabbable/throwable (`PhysicsClutter`) must use a `BoxCollider` or a **Convex** `MeshCollider` paired with a non-kinematic `Rigidbody` (never a non-convex `MeshCollider` on a dynamic `Rigidbody`).
 
 ---
 
 ## 2. Theme Integration: "HIDDEN"
-
-
----
-
-## 2. Theme Integration: "HIDDEN"
-Every core mechanic must reinforce the theme:
-1. **Physically Hidden:** Required items are never sitting out in plain sight. They are tucked *under* physics-enabled clutter (pillows, clothes piles, boxes), *inside* articulated furniture (drawers, cabinets, fridge, hampers), or *behind* environmental props.
-2. **Hidden in Plain Sight (Decoys):** Mismatched, dirty, or ridiculous clothing items (e.g., a wet sock, clown pants, inside-out shirt) are placed in obvious locations to bait panicked players.
-3. **Dynamically Hidden:** Optional mid-run chaos (e.g., a household pet grabbing an exposed sock and hiding it in another room).
-4. **Hidden Until Interacted:** Some hiding spots require multi-step rummaging (e.g., open closet door $\rightarrow$ toss laundry basket $\rightarrow$ flip shoebox to find keys).
+Every core mechanic reinforces the theme:
+1. **Physically Hidden:** Required items are never sitting out in plain sight. They are tucked *under* physics-enabled clutter (`UnderClutter`: pillows, laundry piles, towels, boxes), *inside* articulated furniture (`InsideDrawer`: drawers, cabinets, dressers), on high shelves (`HighShelf`), or tucked on the floor (`FloorHidden`).
+2. **Hidden in Plain Sight (Decoys):** Mismatched, dirty, or ridiculous clothing/accessory items (*Soggy Sock, Holey Sock, Clown Pants, Inside-Out Shirt, Toy Keys*) spawn in `ObviousDecoySpot`s or leftover anchors to bait panicked players.
+3. **Hidden Until Interacted:** Some hiding spots require multi-step rummaging (e.g., open cabinet door or drawer $\rightarrow$ shove/yeet clutter aside $\rightarrow$ equip hidden item).
+4. **Dynamically Hidden (Stretch):** Optional mid-run pet hazard (`PetAI`) that steals an exposed sock and hides it in another room.
 
 ---
 
 ## 3. Core Gameplay Loop
 
-1. **Wake-Up / Start State:** Player wakes up in bed to an alarm and a vibrating phone notification: *"Outside. Leaving in 60s."*
-2. **Objective Reveal:** A diegetic or minimal HUD checklist displays 5 randomized essentials required to leave (e.g., *Left Sock, Right Sock, Pants, Shirt, Keys*).
-3. **Search & Rummage:** Player sprints through the 4-room house, grabbing and throwing physics objects, opening drawers/doors, and searching hiding anchors.
+1. **Wake-Up / Start State:** `RunIntro` + `GameUI` hold the run in `Menu` with a title card (*"You overslept. Your ride is outside. You're still in pajamas."*) and looping alarm SFX; any key or click wakes the player and starts the run. Subsequent restarts skip straight into `Playing`.
+2. **Objective Reveal:** `GameUI` displays a top-left checklist of the 5 required slots (*Left Foot, Right Foot, Legs, Torso, Accessory*) and live Dignity Score.
+3. **Search & Rummage:** Player sprints, skids, bonks, crouches, and hops through the 5-room house, grabbing and yeeting 60+ physics clutter props, opening drawers/doors, and avoiding puddles/Legos.
 4. **Equip / Compromise:**
-   * Finding a **Matching Item** checks it off cleanly.
-   * Finding a **Decoy/Trap Item** allows the player to equip it anyway to save time (at the cost of their final **Dignity Score**).
-5. **Escalation:** The ride outside escalates audio/visual cues as the timer drops.
-6. **Exit / Win Condition:** Player runs through the **Front Door** before time hits $t = 0$.
-   * **Note:** The player *can* exit the house at any time—even missing pants or wearing one wet sock—resulting in a hilarious end-screen grade!
-7. **Lose Condition:** Timer reaches $t = 0$ before exiting $\rightarrow$ The car/bus peels away outside the window, leaving the player stranded in pajamas.
+   * Finding a **Matching Item** checks it off cleanly (`+20` Dignity) and visibly dresses the character via `OutfitVisuals`.
+   * Finding a **Decoy/Trap Item** equips it if the slot is empty (`+10` Dignity + funny tag, visibly shown on the character—including clown pants!), or pockets it with a toast if you already wear the matching item.
+5. **Escalation:** `TimerEscalationManager` + `RideCar` escalate audio/visual cues at `40s`, `25s`, and `12s`.
+6. **Exit / Win Condition:** Player interacts with `FrontDoor_Exit` (`ExitDoor`, `E` tap) before time hits $t = 0$.
+   * **Note:** The player *can* exit at any time—even pantsless or wearing a wet sock—triggering a rank (`S`–`D`) and funny outfit tags!
+7. **Lose Condition:** Timer reaches $t = 0$ before exiting $\rightarrow$ `RideCar` peels away outside with tire screech + smoke puffs (`F`-Rank: *"Left in Pajamas"*).
 
 ---
 
 ## 4. Core Systems & Technical Specifications
 
-### 4.1 First-Person Player Controller (`PlayerController`)
-* **Movement:** Crisp, responsive WASD movement with high acceleration (minimal floatiness).
-* **Sprint:** Hold `Shift` for speed boost + slight FOV increase.
-* **Crouch:** Hold/Toggle `Ctrl` or `C` (essential for looking under beds, tables, and desks).
-* **Jump:** `Space` (low hop to clear clutter piles).
-* **Camera Juice:** Subtle head-bob while sprinting; subtle camera tilt when strafing; escalating heartbeat/shake vignette when timer $t < 15\text{s}$.
+### 4.1 Third-Person Goofy Physics Character (`PlayerController`, `ThirdPersonCamera`, `GoofyBody`, `OutfitVisuals`)
+* **Physics Movement (`PlayerController`):** `Rigidbody` (`60 kg`, `ContinuousDynamic`, `Interpolate`, `PM_PlayerZeroFriction` `CapsuleCollider`) driven toward camera-relative velocity with finite acceleration—creating momentum, big skids when reversing, physical clutter shoving, coyote/buffered `Space` jump, and Hold/Toggle `C` / `Left Ctrl` crouch.
+* **Wall Bonks & Knockdowns:** Sprinting into static walls above `bonkSpeed` knocks the character onto their back/face (`Knockdown`), dropping any held item and shaking the camera.
+* **Camera (`ThirdPersonCamera`):** Over-the-shoulder orbit rig that detaches at runtime, performs `SphereCast` wall collision (ignoring dynamic clutter), hides the character mesh when zoomed closer than `0.65m`, applies sprint FOV boost + panic FOV/shake, enables URP PostFX + SMAA, and saves mouse sensitivity in `PlayerPrefs`.
+* **Procedural Puppet (`GoofyBody` & `OutfitVisuals`):** Spring-driven pajama bean rig that leans into acceleration, waddles while walking, flails arms while panic-sprinting, squashes on landing, blinks, faceplants on knockdowns, and updates slippers/legs/torso/hip keys as items are collected.
 
-### 4.2 Physics Interaction & "Yeet" System (`InteractionManager`)
-Use a center-screen raycast (range $\approx 2.5\text{m}$) with clear crosshair feedback (dot $\rightarrow$ open hand / grab icon / equip icon).
+### 4.2 Physics Interaction & "Yeet" System (`InteractionManager` & `HoverHighlighter`)
+Uses third-person reach (`rayStartsAtPlayerDepth`) with center-screen `RaycastNonAlloc` (`2.5m`), `0.06m` `SphereCast` assist for small props, and automatic nearest-child door/drawer fallback (`childFurnitureRadius = 0.6m`) when aiming at cabinet bodies. `HoverHighlighter` pulses a `MaterialPropertyBlock` tint on the aimed target.
 
 | Object Type | Interaction Input | Behavior |
 | :--- | :--- | :--- |
-| **Clutter Props** (Pillows, boxes, chairs, laundry) | `LMB` (Hold) / `RMB` (Click) | **Hold `LMB`** to pick up and carry using a spring-damped physics target in front of the camera. **Click `RMB`** (or release with flick) to **Yeet/Throw** forward with high impulse force. |
-| **Wearable / Objective Items** (Socks, shirt, keys) | `E` or `LMB` (Tap) | Immediately equips/collects the item, plays a snappy "zip/pop" SFX, removes item from world, updates Checklist & Dignity Score. |
-| **Articulated Furniture** (Drawers, cabinets, doors) | `E` (Tap) or `LMB` (Drag) | Smoothly slides/rotates open along constrained local axis (preferred: single-tap snappy open/close for fast jam pacing, or drag-to-pull physics hinge). |
-| **Front Door (Exit)** | `E` (Tap) | Triggers immediate End-of-Run evaluation. |
+| **Clutter Props** (`PhysicsClutter`) | `LMB` (Hold) / `RMB` (Click) | **Hold `LMB`** to carry at chest height (`carryOrigin`) with wall-clearance `SphereCast`. **Click `RMB`** (or release with flick) to **Yeet/Throw** toward the crosshair with impulse + tumble spin. |
+| **Wearable / Objective Items** (`WearableItem`) | `E` or `LMB` (Tap) | Immediately equips/collects the item, plays procedural pop/squelch/wah SFX, updates `OutfitManager`, `OutfitVisuals`, and Checklist. |
+| **Articulated Furniture** (`OpenableFurniture`) | `E` (Tap) | Smoothly slides drawers (`OpenMode.Slide`) or rotates hinged doors (`OpenMode.Hinge`) with procedural drawer/door SFX. |
+| **Front Door (Exit)** (`ExitDoor`) | `E` (Tap) | Triggers immediate End-of-Run evaluation (`GameManager.TriggerWin()`). |
 
-### 4.3 Randomized Hiding & Spawn System (`SpawnManager`)
-To guarantee replayability, items must never spawn in the exact same spot twice.
-
-* **Spawn Anchors (`HidingSpot`):** Place 25–35 lightweight transform markers across the house. Each marker has metadata:
-  * `spotID`: string
-  * `room`: Enum (`Bedroom`, `Bathroom`, `LivingRoom`, `Hallway`, `Kitchen`)
-  * `concealmentType`: Enum (`UnderClutter`, `InsideDrawer`, `HighShelf`, `FloorHidden`, `ObviousDecoySpot`)
-  * `isOccupied`: bool
+### 4.3 Randomized Hiding & Spawn System (`SpawnManager` & `HidingSpot`)
+* **Spawn Anchors (`HidingSpot`):** 44 transform anchors placed across all 5 rooms (`Bedroom`: 13, `Bathroom`: 9, `LivingRoom`: 8, `Kitchen`: 8, `Hallway`: 6), categorized as `UnderClutter` (11), `InsideDrawer` (14, parented inside moving drawers/doors), `HighShelf` (7), `FloorHidden` (4), and `ObviousDecoySpot` (8).
 * **Spawning Algorithm (On Run Start):**
-  1. Select the **5 Required Matching Items** for the run.
-  2. Filter valid `HidingSpot` anchors for each item (avoiding `ObviousDecoySpot`).
-  3. Randomly assign 1 unique anchor per required item (ensuring spatial distribution across at least 3 different rooms so the player must explore the whole house).
-  4. Spawn **3–5 Decoy/Trap Items** in `ObviousDecoySpot` or remaining anchors.
-  5. Spawn **Physics Clutter** (pillows, cardboard boxes, towels, laundry piles) directly on top of `UnderClutter` anchors so items are genuinely concealed.
+  1. Shuffle and place the 5 required `ItemData` definitions into non-decoy `HidingSpot`s spread across at least `minRoomsForRequired` (3) rooms.
+  2. Spawn `decoyCount` (default 4) trap `ItemData` items into `ObviousDecoySpot` or remaining anchors.
+  3. Build procedural primitive visuals (`ItemVisuals`) with a kinematic `Rigidbody` + `BoxCollider` (`>= 0.08m` min bounds) so items ride inside drawers cleanly and never clip through floors.
+  4. For `UnderClutter` anchors with no physics clutter overhead, `SpawnManager` drops a random cover clutter prefab (pillows, laundry piles, towels, newspaper) directly on top.
 
-### 4.4 Item & Dignity Scoring System (`OutfitManager` & `ScoreCalculator`)
-Each wearable slot (`LeftFoot`, `RightFoot`, `Legs`, `Torso`, `Accessory`) tracks its equipped state:
-
-* `Empty`: $0$ points (Major Dignity penalty)
-* `Matching`: $+20$ points (Full Dignity)
-* `Mismatched / Dirty / Wet`: $+10$ points (Funny status tag, e.g., *"Squishy Left Sock"*, *"Bathrobe Commuter"*)
+### 4.4 Item & Dignity Scoring System (`OutfitManager`)
+Each wearable slot (`LeftFoot`, `RightFoot`, `Legs`, `Torso`, `Accessory`) tracks its equipped `ItemData`:
+* `Empty`: `0` points (adds missing funny tag such as *"Barefoot Bandit"*, *"Pantsless Wonder"*, *"Pajama Top Chic"*, *"Locked Out"*)
+* `Matching`: `+20` points (Full Dignity)
+* `Trap` (Mismatched / Dirty / Wet): `+10` points + funny tag (*"Squishy Foot"*, *"Toe Out"*, *"Circus Commuter"*, *"Seams Legit"*, *"Toddler Chauffeur"*)
 
 **Final Score Formula:**
 $$\text{Total Score} = \text{DignityScore} + \lfloor t_{\text{remaining}} \times 2 \rfloor$$
 
-**End-Screen Ranks (Examples):**
-* **S-Rank (100% Dignity + Fast):** *"Model Citizen"*
-* **B-Rank (Full clothes, mismatched):** *"Fashionably Chaotic"*
-* **C-Rank (Missing 1–2 items):** *"Forgot Pants, Caught the Bus"*
-* **F-Rank (Missed Ride):** *"Left in Pajamas"*
+**End-Screen Ranks:**
+* **S-Rank** (100% Dignity + $\ge 20\text{s}$ remaining): *"Model Citizen"*
+* **A-Rank** (100% Dignity + $< 20\text{s}$ remaining): *"Dressed for Success"*
+* **B-Rank** (All 5 slots filled, with 1+ traps): *"Fashionably Chaotic"*
+* **C-Rank** (Missing 1–2 slots): *"Forgot [Item], Caught the Ride"*
+* **D-Rank** (Missing 3+ slots): *"Basically Still in Pajamas"*
+* **F-Rank** (Missed Ride / $t = 0$): *"Left in Pajamas"*
 
-### 4.5 Escalation & Ride Timer System (`TimerEscalationManager`)
-Keep the player constantly aware of the ticking clock through diegetic audio and UI rather than a silent number:
+### 4.5 Escalation & Ride Timer System (`TimerEscalationManager`, `RideCar`, `GameManager`)
+Default round duration is `90s` (`GameManager.roundDurationSeconds`, configurable down to `60s`):
+* **Start:** `RideCar` idles outside with 3D spatial engine audio; `GameAudio` starts procedural chiptune loop; initial phone toast: *"Outside. Leaving in 90s."*
+* **$t \le 40\text{s}$:** Single polite car honk + phone toast: *"Yo I'm outside."*
+* **$t \le 25\text{s}$:** Double impatient honk + music pitches up (`1.15x`) + phone toast: *"Seriously, I'm double-parked!"*
+* **$t \le 12\text{s}$:** Rapid panic honks + revving + `1.3x` music pitch + pulsing runtime `PanicVolume` (red vignette + chromatic aberration) + heartbeat SFX + camera shake/FOV squeeze + phone toast: *"LEAVING IN 10 SECONDS!!"*
+* **$t = 0\text{s}$:** Tire screech + `RideCar` wheelie peel-out with smoke puffs $\rightarrow$ Game Over trigger.
 
-* **$t = 60\text{s}$ (Start):** Low engine idle rumble outside the front window. Calm morning music starts.
-* **$t = 40\text{s}$:** Single polite car honk. Phone toast notification: *"Yo I'm outside."*
-* **$t = 25\text{s}$:** Double impatient honk. Music tempo speeds up ($1.15\times$ pitch/BPM). Phone toast: *"Seriously, I'm double-parked!"*
-* **$t = 12\text{s}$:** Rapid honking + engine revving. Subtle red screen vignette + heartbeat SFX + camera FOV shift. Phone toast: *"LEAVING IN 10 SECONDS!!"*
-* **$t = 0\text{s}$:** Tire screech SFX $\rightarrow$ Game Over trigger.
-
-### 4.6 Chaos Hazards (Day 4 Stretch Features)
-Implement at least 1–2 of these once the core loop is rock solid:
-* **The Sock-Stealing Pet:** A simple NavMesh/waypoint cat or dog that roams the house. If it passes near an uncollected sock, it picks it up in its mouth and runs to hide in another room (player must chase and interact to reclaim it).
-* **Slippery Hazard / Legos:** Stepping on spilled water in the bathroom or toys in the hallway applies a brief 1.5s camera stumble/slowdown + funny slip SFX.
-
----
-
-## 5. Data Schemas
-
-```json
-// Example Item Definition (ScriptableObject / Resource / JSON)
-{
-  "itemId": "sock_left_clean",
-  "displayName": "Clean Left Sock",
-  "slot": "LeftFoot",
-  "quality": "Matching",
-  "dignityPoints": 20,
-  "funnyTag": null,
-  "allowedRooms": ["Bedroom", "LivingRoom", "Bathroom"],
-  "meshAsset": "SM_Sock_Blue",
-  "pickupSfx": "SFX_FabricPop"
-}
-```
-
-```json
-// Example Decoy Item Definition
-{
-  "itemId": "sock_left_wet",
-  "displayName": "Soggy Bathroom Sock",
-  "slot": "LeftFoot",
-  "quality": "Trap",
-  "dignityPoints": 10,
-  "funnyTag": "Squishy Foot",
-  "allowedRooms": ["Bathroom"],
-  "meshAsset": "SM_Sock_WetGreen",
-  "pickupSfx": "SFX_WetSquelch"
-}
-```
+### 4.6 Chaos Hazards (`SlipperyHazard` & Stretch `PetAI`)
+* **Implemented — Slippery Hazards (`SlipperyHazard`):**
+  * `Hazard_Puddle` in the Bathroom and `Hazard_Legos` in the Hallway trip players sprinting at $\ge 5.0\text{ m/s}$, knocking them down (`Knockdown`), sliding them forward on momentum, briefly slowing recovery, shaking the camera, and playing a slide-whistle slip SFX.
+* **Stretch Goal — The Sock-Stealing Pet (`PetAI`):**
+  * A waypoint-roaming cat or dog that grabs an uncollected sock and bolts to another room until chased down and interacted with.
 
 ---
 
-## 6. House Level Layout (Compact 4-Room Loop)
-Design the floorplan as a tight, interconnected loop (not a long dead-end corridor) so players can sprint smoothly between rooms:
+## 5. Data Schemas (`ItemData` ScriptableObjects)
+Implemented in `Assets/_Project/Scripts/Items/ItemData.cs` with 10 `.asset` definitions stored in `Assets/_Project/Data/Items/`:
+* **Matching (5):** `Item_sock_left`, `Item_sock_right`, `Item_pants`, `Item_shirt`, `Item_keys` (`dignityPoints: 20`)
+* **Decoys / Traps (5):** `Item_sock_wet` (*"Squishy Foot"*, Bathroom only), `Item_sock_holey` (*"Toe Out"*), `Item_pants_clown` (*"Circus Commuter"*), `Item_shirt_insideout` (*"Seams Legit"*), `Item_keys_toy` (*"Toddler Chauffeur"*) (`dignityPoints: 10`)
+
+---
+
+## 6. House Level Layout (Compact 5-Room Loop — `HouseBuilder` 6×8 Tile Grid)
 
 ```text
-+-------------------+-------------------+
-|                   |                   |
-|     BEDROOM       |     BATHROOM      |
-|  (Player Spawn)   |  (Wet Decoys /    |
-|  Bed, Closet,     |   Hamper, Tub,    |
-|  Nightstand       |   Slippery Floor) |
-|         |         |         |         |
-+---------+---------+---------+---------+
-|                                       |
-|               HALLWAY                 |
-|     (Shoe Rack, Coat Closet, Rug)     |
-|                   |                   |
-+-------------------+-------------------+
-|                                       |
-|             LIVING ROOM               |
-|   (Couch Cushions, Coffee Table,      |
-|    Cardboard Boxes, Front Window)     |
-|                                       |
-+==============[FRONT DOOR]=============+
-            (Idling Car Outside)
++--------------------+--------------------+
+|                    |                    |
+|      BEDROOM       |      BATHROOM      |
+|   (Player Spawn)   |  (Tub, Hamper,     |
+|  Bed, Desk, Closet |   Puddle Hazard)   |
+|         |          |         |          |
++---------+----------+---------+----------+
+|               HALLWAY                   |
+|     (Legos Hazard, Coat/Shoe Racks)     |
+|         |                    |          |
++---------+--------------------+----------+
+|                    |                    |
+|    LIVING ROOM     |      KITCHEN       |
+|  (Sofa, Coffee     |  (Cabinets, Table, |
+|   Table, TV, Boxes)|   Fridge/Appliances|
+|                    |                    |
++=====[FRONT DOOR]===+====================+
+            (Idling RideCar Outside)
 ```
 
 ---
 
-## 7. Recommended Project Directory Structure
+## 7. Project Directory Structure
 
 ```text
 Assets/_Project
 ├── /Art
-│   ├── /Models         # Low-poly furniture, clothes, clutter props
-│   ├── /Materials      # Simple flat/stylized shaders, outline highlight material
-│   └── /UI             # Crosshair icons, checklist icons, phone toast UI
-├── /Audio
-│   ├── /SFX            # Footsteps, yeet whoosh, drawer slide, honks, equip pops
-│   └── /Music          # Fast quirky morning loop
+│   ├── /Materials      # Player/house materials + /Palette (5 schemes + checker textures)
+│   ├── /Models         # Custom models (if needed)
+│   ├── /PostFX         # SeptemberMorning.asset (URP VolumeProfile)
+│   └── /UI             # Custom UI sprites (optional; HUD uses runtime uGUI/TMP)
+├── /Audio              # Reserved if external clips are added (currently synthesized via Sfx.cs)
+├── /Data
+│   └── /Items          # 10 ItemData ScriptableObjects (5 matching + 5 decoys)
+├── /Editor             # HouseBuilder, PlayerBuilder, GameSystemsBuilder, PaletteBuilder, PostFXBuilder
 ├── /Prefabs
-│   ├── /Player         # PlayerController + Interaction raycaster + Physics hold point
-│   ├── /Items          # Matching items & Decoy items
-│   ├── /Furniture      # Openable drawers, closets, physics clutter piles
-│   └── /Environment    # House walls, front door trigger, outside car prop
+│   ├── /Environment    # Shared environment prefabs
+│   ├── /Furniture      # /Clutter (41 physics-safe grabbable/throwable clutter prefabs)
+│   ├── /Items          # Optional custom wearable prefabs
+│   └── /Player         # Player.prefab (Rigidbody + GoofyBody + ThirdPersonCamera + InteractionManager)
 ├── /Scenes
-│   ├── MainMenu        # Camera inside bedroom looking at alarm/window
-│   └── HouseLevel      # Main playable level
+│   └── HouseLevel      # Main playable level (first in Build Settings)
 └── /Scripts
-    ├── /Core           # GameManager, TimerEscalationManager, ScoreCalculator
-    ├── /Player         # PlayerController, InteractionManager, CameraJuice
-    ├── /Items          # ItemData, WearableItem, SpawnManager, HidingSpot, OutfitManager
-    ├── /World          # OpenableFurniture, PhysicsClutter, ExitDoor, PetAI (stretch)
-    └── /UI             # ChecklistUI, PhoneNotificationUI, EndScreenUI
+    ├── /Core           # GameManager, TimerEscalationManager, RunIntro, Sfx, AudioHub, GameAudio
+    ├── /Items          # ItemData, ItemVisuals, WearableItem, SpawnManager, HidingSpot, OutfitManager
+    ├── /Player         # PlayerController, PlayerInputHandler, ThirdPersonCamera, GoofyBody, OutfitVisuals, InteractionManager
+    ├── /UI             # Phase1DebugHUD, GameUI, PauseMenuUI
+    └── /World          # IInteractable, PhysicsClutter, OpenableFurniture, HoverHighlighter, SlipperyHazard, RideCar, ExitDoor, ImpactSound
 ```
 
 ---
 
-## 8. 5-Day Agent Implementation Plan
+## 8. 5-Day Agent Implementation Plan (Current Status)
 
 ### Phase 1 (Day 1): Greybox & Core Physics Loop
-- [ ] Scaffold folder structure and `GameManager` state machine (`Menu`, `Playing`, `Win`, `Lose`).
-- [ ] Implement `PlayerController` (WASD, Sprint, Crouch, Jump).
-- [ ] Implement `InteractionManager` with physics Grab, Hold (spring/velocity tracking), and Throw/Yeet impulse.
-- [ ] Greybox the 4-room house layout with basic colliders + `ExitDoor` win trigger.
-- [ ] Implement basic countdown timer (`60s`) and debug HUD.
-* **Milestone Check:** Can you walk around the greybox house, throw boxes across the room, and run out the front door before time runs out?
+- [x] Scaffold folder structure and `GameManager` state machine (`Menu`, `Playing`, `Win`, `Lose`, plus `IsPaused`).
+- [x] Implement `PlayerController` (WASD, Sprint, Crouch, Jump, third-person physics momentum/skids/bonks) + `ThirdPersonCamera` + `GoofyBody`.
+- [x] Implement `InteractionManager` with physics Grab, Hold (chest-height carry), and Throw/Yeet impulse.
+- [x] Build house layout + `ExitDoor` win trigger.
+- [x] Implement countdown timer and debug HUD (`Phase1DebugHUD`).
 
 ### Phase 2 (Day 2): Hidden Items, Spawning & Escalation
-- [ ] Create `ItemData` definitions (5 matching items + 4 decoy items).
-- [ ] Place 25+ `HidingSpot` anchors across all 4 rooms.
-- [ ] Implement `SpawnManager` (randomized placement + clutter spawning on top of hidden spots).
-- [ ] Implement `OutfitManager` & HUD `ChecklistUI` (shows slots filled, flags decoy items).
-- [ ] Implement `TimerEscalationManager` + `PhoneNotificationUI` pop-ups.
-* **Milestone Check:** Every restart hides items in new spots under clutter; collecting them updates the checklist; timer triggers text alerts.
+- [x] Create `ItemData` definitions (5 matching items + 5 decoy items in `Assets/_Project/Data/Items/`).
+- [x] Place 44 `HidingSpot` anchors across all 5 rooms.
+- [x] Implement `SpawnManager` (randomized placement across $\ge 3$ rooms + clutter spawning on `UnderClutter` spots).
+- [x] Implement `OutfitManager`, `OutfitVisuals`, & HUD Checklist (`GameUI`).
+- [x] Implement `TimerEscalationManager` + phone toast pop-ups (`GameUI`).
 
 ### Phase 3 (Day 3): Articulated Furniture & Visual Pass
-- [ ] Implement `OpenableFurniture` (sliding drawers, hinged closet doors, fridge door).
-- [ ] Replace greybox primitives with stylized low-poly furniture & room props.
-- [ ] Add subtle hover highlight/outline shader when looking at interactable objects.
-- [ ] Set up bright morning sunlight streaming through windows + visible idling car/bus outside.
+- [x] Implement `OpenableFurniture` (32 sliding drawers & hinged doors).
+- [x] Dress house with Kenney & Synty low-poly furniture, props, and switchable color palettes (`PaletteBuilder`).
+- [x] Add `HoverHighlighter` (`MaterialPropertyBlock` tint pulse on aimed interactables).
+- [x] Set up September morning lighting, `PostFX_SeptemberMorning` volume, and idling `RideCar` outside.
 
 ### Phase 4 (Day 4): Comedy, Polish & Hazards
-- [ ] Build `EndScreenUI` showing final Dignity Score, Time Remaining, funny outfit tags, and instant "Play Again" button.
-- [ ] Add camera juice (FOV sprint warp, panic vignette, subtle screen shake under $15\text{s}$).
-- [ ] Implement 1–2 hazards (e.g., slippery bathroom puddle or sock-stealing pet AI).
-- [ ] Build diegetic `MainMenu` (camera in bed looking at vibrating phone $\rightarrow$ smooth snap to first-person on Play).
+- [x] Upgrade end screen (`GameUI` + `Phase1DebugHUD`) with Dignity Score, Time Bonus, Rank (`S`–`F`), funny tags, and Restart button.
+- [x] Add camera juice (sprint FOV warp, wall-bonk/slip shake, panic vignette & chromatic aberration under `12s`).
+- [x] Implement `SlipperyHazard` (Bathroom puddle & Hallway Legos).
+- [x] Implement wake-up title overlay (`RunIntro` + `GameUI`) and runtime `PauseMenuUI` (`Esc` pause, Master Volume & Mouse Sensitivity sliders, Controls Card & hint strip, Quit).
+- [ ] *(Stretch)* Implement `PetAI` sock-stealing household pet or dedicated `MainMenu.unity` scene.
 
 ### Phase 5 (Day 5): Audio, Balance & Packaging
-- [ ] Integrate full SFX suite (honks, footsteps, fabric zip, clutter thuds, text pings, tire screech).
-- [ ] Playtest and tune physics throw force, collider sizes (prevent small socks from clipping through floors!), and timer duration.
-- [ ] Export, test standalone build, and prepare Game Jam submission page.
+- [x] Integrate procedural SFX & music suite (`Sfx`, `AudioHub`, `GameAudio`, `ImpactSound`) and standalone single-`MonoBehaviour`-per-file compliance.
+- [ ] Playtest and balance timer duration (`60s` vs `90s`), physics throw forces, and hiding spot fairness.
+- [ ] Export and test standalone Windows build (`File > Build Profiles`) and prepare Game Jam submission page.
 
 ---
 
 ## 9. Directives for Antigravity Agent
 When implementing tasks from this spec, follow these engineering rules:
-1. **Physics Safety First:** Ensure small collectible items (like socks and keys) use continuous collision detection (CCD) or clean box/capsule colliders so they never clip through drawers or floors when clutter is tossed off them.
-2. **Expose Tuning Parameters:** Make movement speed, throw force, grab distance, and timer thresholds public/serialized inspector variables for rapid game-feel iteration.
-3. **Decoupled Events:** Use an Event Bus / C# Events / Signals pattern between `OutfitManager`, `TimerEscalationManager`, and UI scripts to avoid tight coupling.
-4. **Scope Discipline:** Prioritize completing Phases 1 and 2 cleanly before adding stretch hazards or complex animations.
+1. **Physics Safety First:** Ensure small collectible items (`WearableItem`) remain kinematic inside drawers/spots until picked up, and dynamic clutter (`PhysicsClutter`) uses `BoxCollider` or convex `MeshCollider` with `ContinuousDynamic` collision detection.
+2. **Standalone Build Safety:** Keep **at most one `MonoBehaviour`** per `.cs` file, named identically to the `.cs` filename.
+3. **Expose Tuning Parameters:** Make movement speeds, throw force, grab distance, and timer thresholds serialized Inspector variables for rapid game-feel iteration.
+4. **Decoupled Events:** Use C# events (`GameManager`, `OutfitManager`, `TimerEscalationManager`, `InteractionManager`, `PlayerController`) to avoid tight coupling.
+5. **Scope Discipline:** Prioritize playtest balance, zero-error builds, and polish over high-risk scope additions.

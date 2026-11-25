@@ -19,6 +19,7 @@ namespace WheresMyLeftSock.Core
         private InteractionManager _interaction;
         private float _stepTimer;
         private bool _leftFoot;
+        private bool _isPaused;
         private static float _musicPitchTarget = 1f;
 
         public static void SetMusicPitch(float p) => _musicPitchTarget = p;
@@ -30,7 +31,11 @@ namespace WheresMyLeftSock.Core
             _player = FindFirstObjectByType<PlayerController>();
             _interaction = _player != null ? _player.GetComponent<InteractionManager>() : FindFirstObjectByType<InteractionManager>();
 
-            if (_gm != null) _gm.OnGameStateChanged += HandleState;
+            if (_gm != null)
+            {
+                _gm.OnGameStateChanged += HandleState;
+                _gm.OnPauseChanged += HandlePause;
+            }
             if (_player != null)
             {
                 _player.Jumped += OnJump;
@@ -56,7 +61,11 @@ namespace WheresMyLeftSock.Core
 
         private void OnDestroy()
         {
-            if (_gm != null) _gm.OnGameStateChanged -= HandleState;
+            if (_gm != null)
+            {
+                _gm.OnGameStateChanged -= HandleState;
+                _gm.OnPauseChanged -= HandlePause;
+            }
             if (_player != null)
             {
                 _player.Jumped -= OnJump;
@@ -68,6 +77,15 @@ namespace WheresMyLeftSock.Core
             {
                 _interaction.OnObjectGrabbed -= OnGrab;
                 _interaction.OnObjectReleased -= OnRelease;
+            }
+        }
+
+        private void HandlePause(bool paused)
+        {
+            _isPaused = paused;
+            if (_gm != null && _gm.CurrentState == GameState.Playing)
+            {
+                AudioHub.Instance.Music.volume = paused ? musicVolume * 0.35f : musicVolume;
             }
         }
 
@@ -93,7 +111,7 @@ namespace WheresMyLeftSock.Core
         {
             AudioSource m = AudioHub.Instance.Music;
             m.clip = Sfx.Get("music");
-            m.volume = musicVolume;
+            m.volume = _isPaused ? musicVolume * 0.35f : musicVolume;
             m.pitch = 1f;
             _musicPitchTarget = 1f;
             if (!m.isPlaying) m.Play();
@@ -101,6 +119,8 @@ namespace WheresMyLeftSock.Core
 
         private void Update()
         {
+            if (_isPaused) return;
+
             AudioSource m = AudioHub.Instance.Music;
             m.pitch = Mathf.MoveTowards(m.pitch, _musicPitchTarget, Time.deltaTime * 0.5f);
 

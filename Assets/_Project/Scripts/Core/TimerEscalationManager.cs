@@ -72,6 +72,11 @@ namespace WheresMyLeftSock.Core
                 return;
             }
 
+            if (_gm.IsPaused)
+            {
+                return;
+            }
+
             float t = _gm.TimeRemaining;
             RideCar car = RideCar.Instance;
 

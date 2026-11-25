@@ -54,13 +54,27 @@ namespace WheresMyLeftSock.Player
         private Vector3 _pivot;
         private bool _initialized;
 
+        public const string MouseSensitivityPrefKey = "WMLS_MouseSensitivity";
+        public const float DefaultMouseSensitivity = 0.12f;
+
         public Transform CameraTransform => cam != null ? cam.transform : transform;
         public Camera Camera => cam;
         public float Yaw => _yaw;
         public float Pitch => _pitch;
 
+        public float MouseSensitivity
+        {
+            get => mouseSensitivity;
+            set => mouseSensitivity = Mathf.Clamp(value, 0.02f, 0.5f);
+        }
+
         private void Awake()
         {
+            if (PlayerPrefs.HasKey(MouseSensitivityPrefKey))
+            {
+                MouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityPrefKey, mouseSensitivity);
+            }
+
             if (cam == null)
             {
                 cam = GetComponentInChildren<Camera>(true);
