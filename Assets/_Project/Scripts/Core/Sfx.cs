@@ -6,7 +6,8 @@ namespace WheresMyLeftSock.Core
     /// <summary>
     /// Procedural sound effects + music (no audio files in the project). Clips are synthesised on first use and cached.
     /// Sfx.Play("honk") / Sfx.PlayAt("thud", pos). Names: pop, grab, whoosh, thud, honk, honk_long, engine, rev,
-    /// screech, heartbeat, ping, step, slip, bonk, jump, land, drawer, door, alarm, squelch, wah, win, lose, music.
+    /// screech, heartbeat, ping, step, slip, bonk, jump, land, drawer, door, alarm, squelch, wah, win, lose, music,
+    /// meow, hiss, chirp.
     /// </summary>
     public static class Sfx
     {
@@ -66,6 +67,9 @@ namespace WheresMyLeftSock.Core
                 case "lose": return Wah(new[] { 196f, 185f, 175f, 165f }, new[] { 0.3f, 0.3f, 0.3f, 0.9f });
                 case "win": return Arp(new[] { 523f, 659f, 784f, 1047f }, 0.09f, 0.4f);
                 case "music": return Music();
+                case "meow": return Meow();
+                case "hiss": return Hiss();
+                case "chirp": return Chirp();
             }
 
             return null;
@@ -488,6 +492,66 @@ namespace WheresMyLeftSock.Core
                 prev = n;
                 b[start + i] += Mathf.Lerp(lp, hp, bright) * Mathf.Exp(-s * (8f / dur)) * vol;
             }
+        }
+
+        private static float[] Meow()
+        {
+            float dur = 0.44f;
+            float[] b = Buf(dur);
+            float ph = 0f, ph2 = 0f;
+            for (int i = 0; i < b.Length; i++)
+            {
+                float t = i / (float)b.Length;
+                // Classic mischievous upward-then-downward cat pitch contour
+                float freq = t < 0.35f
+                    ? Mathf.Lerp(470f, 780f, t / 0.35f)
+                    : Mathf.Lerp(780f, 410f, (t - 0.35f) / 0.65f);
+                freq += Mathf.Sin(t * 28f) * 14f;
+                ph += freq / SR;
+                ph2 += (freq * 2f) / SR;
+
+                float env = Mathf.Min(1f, t / 0.08f) * Mathf.Pow(1f - t, 0.7f);
+                float tone = Wave(ph, 0) * 0.68f + Wave(ph2, 0) * 0.24f + Wave(ph * 3f, 2) * 0.08f;
+                b[i] = tone * env * 0.55f;
+            }
+            return b;
+        }
+
+        private static float[] Hiss()
+        {
+            float dur = 0.30f;
+            float[] b = Buf(dur);
+            float prev = 0f;
+            float ph = 0f;
+            for (int i = 0; i < b.Length; i++)
+            {
+                float t = i / (float)b.Length;
+                float env = Mathf.Min(1f, t / 0.03f) * Mathf.Exp(-t * 4.5f);
+                float n = Noise();
+                float hp = n - prev * 0.92f;
+                prev = n;
+                ph += Mathf.Lerp(1500f, 900f, t) / SR;
+                float rasp = Wave(ph, 2) * 0.14f;
+                b[i] = Mathf.Clamp((hp * 0.9f + rasp) * env * 0.65f, -0.95f, 0.95f);
+            }
+            return b;
+        }
+
+        private static float[] Chirp()
+        {
+            float dur = 0.19f;
+            float[] b = Buf(dur);
+            float ph = 0f;
+            for (int i = 0; i < b.Length; i++)
+            {
+                float t = i / (float)b.Length;
+                float freq = Mathf.Lerp(640f, 1320f, Mathf.Pow(t, 0.65f)) + Mathf.Sin(t * 78f) * 85f;
+                ph += freq / SR;
+                float env = Mathf.Min(1f, t / 0.06f) * Mathf.Pow(1f - t, 0.6f);
+                float tone = Wave(ph, 0) * 0.72f + Wave(ph * 2f, 0) * 0.28f;
+                b[i] = tone * env * 0.52f;
+            }
+            return b;
         }
     }
 }

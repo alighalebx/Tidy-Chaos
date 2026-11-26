@@ -31,6 +31,7 @@ namespace WheresMyLeftSock.World
         private bool _isOpen;
 
         public bool IsOpen => _isOpen;
+        public OpenMode Mode => mode;
         public string InteractionPrompt => (_isOpen ? "Close " : "Open ") + label;
         public InteractionCategory Category => InteractionCategory.Furniture;
         public bool CanInteract => true;

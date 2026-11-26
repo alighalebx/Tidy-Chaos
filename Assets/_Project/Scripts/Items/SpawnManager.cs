@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using WheresMyLeftSock.Core;
 using WheresMyLeftSock.World;
 
 namespace WheresMyLeftSock.Items
@@ -21,8 +22,16 @@ namespace WheresMyLeftSock.Items
         [SerializeField] private int seed = -1;
         [SerializeField] private bool logPlacements = true;
 
+        [Header("Chaos Hazard #2: Sock-Stealing Pet")]
+        [SerializeField] private bool enableSockStealingPet = true;
+        [SerializeField] private float petGraceDelay = 12f;
+        [SerializeField] private float petMoveSpeed = 2.8f;
+        [SerializeField] private float petFleeSpeed = 4.6f;
+        [SerializeField] private float petStealCooldown = 22f;
+
         private readonly List<WearableItem> _spawned = new List<WearableItem>();
         private System.Random _rng;
+        private PetAI _pet;
 
         public IReadOnlyList<WearableItem> Spawned => _spawned;
 
@@ -31,6 +40,48 @@ namespace WheresMyLeftSock.Items
             _rng = seed >= 0 ? new System.Random(seed) : new System.Random();
             if (OutfitManager.Instance != null) OutfitManager.Instance.SetRequired(requiredItems);
             SpawnAll();
+
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+                if (GameManager.Instance.CurrentState == GameState.Playing)
+                {
+                    SpawnPetIfNeeded();
+                }
+            }
+            else
+            {
+                SpawnPetIfNeeded();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+            }
+        }
+
+        private void HandleGameStateChanged(GameState state)
+        {
+            if (state == GameState.Playing)
+            {
+                SpawnPetIfNeeded();
+            }
+        }
+
+        private void SpawnPetIfNeeded()
+        {
+            if (!enableSockStealingPet || _pet != null) return;
+
+            // Always spawn at open Hallway center; PetAI.Start() snaps cleanly onto a verified walkable Hallway/LivingRoom node.
+            Vector3 spawnPos = new Vector3(6.3f, 0.18f, 9.45f);
+
+            GameObject petGo = new GameObject("ChaosCat");
+            petGo.transform.position = spawnPos;
+            _pet = petGo.AddComponent<PetAI>();
+            _pet.Configure(petGraceDelay, petMoveSpeed, petFleeSpeed, petStealCooldown);
         }
 
         private void SpawnAll()
