@@ -2,6 +2,13 @@ using UnityEngine;
 
 namespace WheresMyLeftSock.Player
 {
+    public enum BodyPoseMode
+    {
+        Normal = 0,
+        Celebrate = 1,
+        Defeat = 2
+    }
+
     /// <summary>
     /// Procedural spring-driven wobble for the pajama bean: leans into acceleration, waddles, flails its arms
     /// when sprinting in a panic, squashes on landing, jiggles its head and faceplants on knockdowns.
@@ -88,6 +95,10 @@ namespace WheresMyLeftSock.Player
         private float _phase;
         private float _blinkTimer;
         private float _blinkT = 1f;
+
+        public BodyPoseMode PoseMode { get; private set; } = BodyPoseMode.Normal;
+
+        public void SetPoseMode(BodyPoseMode mode) => PoseMode = mode;
 
         private void Awake()
         {
@@ -202,7 +213,35 @@ namespace WheresMyLeftSock.Player
 
             Vector3 tAL, tAR, tLL, tLR;
             float flail = Time.time * flailRate * Mathf.PI * 2f;
-            if (knocked)
+            float extraBob = 0f;
+            float extraRoll = 0f;
+            float extraSquash = 0f;
+
+            if (PoseMode == BodyPoseMode.Celebrate)
+            {
+                float ct = Time.unscaledTime * 5.5f;
+                tPitch = Mathf.Sin(ct * 0.5f) * 6f;
+                tRoll = Mathf.Sin(ct) * 11f;
+                tHead = new Vector3(Mathf.Sin(ct * 1.1f) * 0.03f, Mathf.Abs(Mathf.Sin(ct)) * 0.03f, 0f);
+                tAL = new Vector3(-155f + Mathf.Sin(ct * 1.4f) * 22f, 0f, -24f - Mathf.Sin(ct) * 14f);
+                tAR = new Vector3(-155f - Mathf.Sin(ct * 1.4f) * 22f, 0f, 24f + Mathf.Sin(ct) * 14f);
+                tLL = new Vector3(Mathf.Sin(ct) * 12f, 0f, -6f);
+                tLR = new Vector3(-Mathf.Sin(ct) * 12f, 0f, 6f);
+                extraBob = Mathf.Abs(Mathf.Sin(ct)) * 0.11f;
+                extraRoll = Mathf.Sin(ct) * 4f;
+                extraSquash = -Mathf.Sin(ct * 2f) * 0.08f;
+            }
+            else if (PoseMode == BodyPoseMode.Defeat)
+            {
+                tPitch = 34f;
+                tRoll = Mathf.Sin(Time.unscaledTime * 1.4f) * 4f;
+                tHead = new Vector3(0f, -0.05f, 0.06f);
+                tAL = new Vector3(25f, 0f, -18f);
+                tAR = new Vector3(25f, 0f, 18f);
+                tLL = Vector3.zero;
+                tLR = Vector3.zero;
+            }
+            else if (knocked)
             {
                 tAL = new Vector3(-30f, 0f, -85f);
                 tAR = new Vector3(-30f, 0f, 85f);
@@ -243,12 +282,13 @@ namespace WheresMyLeftSock.Player
                 }
             }
 
+            float poseSquash = PoseMode == BodyPoseMode.Celebrate ? extraSquash : crouch * 0.32f;
             for (int i = 0; i < steps; i++)
             {
                 _leanPitch.Step(tPitch, leanFrequency, leanDamping, dt);
                 _leanRoll.Step(tRoll, leanFrequency, leanDamping, dt);
                 _knock.Step(knocked ? controller.KnockdownPitch : 0f, knockFrequency, knockDamping, dt);
-                _squash.Step(crouch * 0.32f, squashFrequency, squashDamping, dt);
+                _squash.Step(poseSquash, squashFrequency, squashDamping, dt);
                 _headOffset.Step(tHead, headFrequency, headDamping, dt);
                 _armL.Step(tAL, limbFrequency, limbDamping, dt);
                 _armR.Step(tAR, limbFrequency, limbDamping, dt);
@@ -256,8 +296,8 @@ namespace WheresMyLeftSock.Player
                 _legR.Step(tLR, limbFrequency * 1.4f, limbDamping, dt);
             }
 
-            float roll = grounded && !knocked ? s1 * waddleRoll * move01 : 0f;
-            float bob = grounded && !knocked ? Mathf.Abs(s1) * waddleBob * move01 : 0f;
+            float roll = (grounded && !knocked ? s1 * waddleRoll * move01 : 0f) + extraRoll;
+            float bob = (grounded && !knocked ? Mathf.Abs(s1) * waddleBob * move01 : 0f) + extraBob;
             float sq = Mathf.Clamp(_squash.X, -0.4f, 0.5f);
 
             hips.localPosition = new Vector3(0f, bob, 0f);

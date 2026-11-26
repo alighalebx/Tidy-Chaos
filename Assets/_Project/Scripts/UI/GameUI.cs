@@ -47,6 +47,7 @@ namespace WheresMyLeftSock.UI
             {
                 _gm.OnGameStateChanged += HandleState;
                 _gm.OnPauseChanged += HandlePause;
+                _gm.OnIntroSwoopChanged += HandleIntroSwoopChanged;
             }
             if (OutfitManager.Instance != null) OutfitManager.Instance.OnItemCollected += HandleCollected;
             TimerEscalationManager.OnToast += QueueToast;
@@ -60,6 +61,7 @@ namespace WheresMyLeftSock.UI
             {
                 _gm.OnGameStateChanged -= HandleState;
                 _gm.OnPauseChanged -= HandlePause;
+                _gm.OnIntroSwoopChanged -= HandleIntroSwoopChanged;
             }
             if (OutfitManager.Instance != null) OutfitManager.Instance.OnItemCollected -= HandleCollected;
             TimerEscalationManager.OnToast -= QueueToast;
@@ -111,7 +113,7 @@ namespace WheresMyLeftSock.UI
             _title.transform.SetParent(root, false);
             var trt = (RectTransform)_title.transform;
             trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one; trt.offsetMin = trt.offsetMax = Vector2.zero;
-            Img(trt, new Color(0.05f, 0.04f, 0.1f, 0.45f));
+            Img(trt, new Color(0.05f, 0.04f, 0.1f, 0.22f));
             TMP_Text big = T("Big", trt, "WHERE'S MY\nLEFT SOCK?!", 128, FontStyles.Bold, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1500, 360), new Color(1f, 0.85f, 0.25f), centered: true, y: 120);
             big.rectTransform.localRotation = Quaternion.Euler(0, 0, 4f);
             big.outlineWidth = 0.18f;
@@ -171,18 +173,21 @@ namespace WheresMyLeftSock.UI
             }
         }
 
-        private void HandlePause(bool paused)
+        private void HandlePause(bool paused) => RefreshChecklistVisibility();
+
+        private void HandleIntroSwoopChanged(bool swooping) => RefreshChecklistVisibility();
+
+        private void RefreshChecklistVisibility()
         {
-            if (_gm != null)
+            if (_gm != null && _checklist != null)
             {
-                _checklist.gameObject.SetActive(_gm.CurrentState == GameState.Playing && !paused);
+                _checklist.gameObject.SetActive(_gm.CurrentState == GameState.Playing && !_gm.IsPaused && !_gm.IsIntroSwoopActive);
             }
         }
 
         private void HandleState(GameState s)
         {
-            bool paused = _gm != null && _gm.IsPaused;
-            _checklist.gameObject.SetActive(s == GameState.Playing && !paused);
+            RefreshChecklistVisibility();
             if (s == GameState.Win || s == GameState.Lose)
             {
                 StartCoroutine(FillEndScreen(s == GameState.Lose));
@@ -290,6 +295,27 @@ namespace WheresMyLeftSock.UI
             Transform panel = hud != null ? hud.transform.Find("EndScreenPanel") : null;
             if (panel == null || OutfitManager.Instance == null) yield break;
 
+            // Keep full-screen backdrop light so the character / street showcase stays bright on the left
+            Image backdrop = panel.GetComponent<Image>();
+            if (backdrop != null)
+            {
+                backdrop.color = new Color(0.03f, 0.04f, 0.08f, 0.18f);
+            }
+
+            // Right-side summary card framing the showcase on the left
+            Transform existingCard = panel.Find("ShowcaseCardBg");
+            if (existingCard == null)
+            {
+                RectTransform cardRt = R("ShowcaseCardBg", panel, new Vector2(0.54f, 0.08f), new Vector2(0.96f, 0.92f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+                cardRt.offsetMin = Vector2.zero;
+                cardRt.offsetMax = Vector2.zero;
+                cardRt.SetAsFirstSibling();
+                Img(cardRt, new Color(0.05f, 0.06f, 0.10f, 0.84f));
+
+                RectTransform accent = R("AccentBar", cardRt, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(0f, 6f));
+                Img(accent, new Color(1f, 0.85f, 0.30f, 1f));
+            }
+
             OutfitManager om = OutfitManager.Instance;
             float t = _gm != null ? _gm.TimeRemaining : 0f;
             om.Rank(lost, t, out string letter, out string rankTitle);
@@ -304,16 +330,24 @@ namespace WheresMyLeftSock.UI
             string rankCol = letter == "S" ? "#FFD54A" : letter == "A" ? "#7CFC7C" : letter == "B" ? "#6EC6FF" : letter == "C" ? "#FFB347" : "#FF6B6B";
             if (title != null)
             {
-                title.rectTransform.anchoredPosition = new Vector2(0, 230);
-                title.rectTransform.sizeDelta = new Vector2(1600, 110);
+                RectTransform rt = title.rectTransform;
+                rt.anchorMin = rt.anchorMax = new Vector2(0.75f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.anchoredPosition = new Vector2(0f, 290f);
+                rt.sizeDelta = new Vector2(740f, 110f);
+                title.fontSize = 54f;
+                title.alignment = TextAlignmentOptions.Center;
                 title.text = $"<color={rankCol}>{letter}</color>  {rankTitle.ToUpperInvariant()}";
             }
 
             if (sub != null)
             {
-                sub.rectTransform.anchoredPosition = new Vector2(0, -10);
-                sub.rectTransform.sizeDelta = new Vector2(1300, 380);
-                sub.fontSize = 30;
+                RectTransform rt = sub.rectTransform;
+                rt.anchorMin = rt.anchorMax = new Vector2(0.75f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.anchoredPosition = new Vector2(0f, 10f);
+                rt.sizeDelta = new Vector2(720f, 440f);
+                sub.fontSize = 26f;
                 sub.alignment = TextAlignmentOptions.Center;
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine(lost ? "Time ran out. Your ride drove off without you!" : $"Escaped with {t:0.0}s to spare!");
@@ -333,7 +367,12 @@ namespace WheresMyLeftSock.UI
                 sub.text = sb.ToString();
             }
 
-            if (btn != null) btn.anchoredPosition = new Vector2(0, -260);
+            if (btn != null)
+            {
+                btn.anchorMin = btn.anchorMax = new Vector2(0.75f, 0.5f);
+                btn.pivot = new Vector2(0.5f, 0.5f);
+                btn.anchoredPosition = new Vector2(0f, -300f);
+            }
         }
     }
 }

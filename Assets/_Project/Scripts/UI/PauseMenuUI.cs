@@ -57,6 +57,7 @@ namespace WheresMyLeftSock.UI
             {
                 _gm.OnGameStateChanged += HandleGameStateChanged;
                 _gm.OnPauseChanged += HandlePauseChanged;
+                _gm.OnIntroSwoopChanged += HandleIntroSwoopChanged;
             }
 
             RefreshVisibility();
@@ -64,7 +65,7 @@ namespace WheresMyLeftSock.UI
 
         private void Update()
         {
-            if (_gm == null || _gm.CurrentState != GameState.Playing)
+            if (_gm == null || _gm.CurrentState != GameState.Playing || _gm.IsIntroSwoopActive)
             {
                 return;
             }
@@ -87,6 +88,7 @@ namespace WheresMyLeftSock.UI
             {
                 _gm.OnGameStateChanged -= HandleGameStateChanged;
                 _gm.OnPauseChanged -= HandlePauseChanged;
+                _gm.OnIntroSwoopChanged -= HandleIntroSwoopChanged;
             }
 
             if (_volumeSlider != null) _volumeSlider.onValueChanged.RemoveListener(HandleVolumeChanged);
@@ -618,6 +620,8 @@ namespace WheresMyLeftSock.UI
 
         private void HandleGameStateChanged(GameState state) => RefreshVisibility();
 
+        private void HandleIntroSwoopChanged(bool swooping) => RefreshVisibility();
+
         private void HandlePauseChanged(bool paused)
         {
             RefreshVisibility();
@@ -635,9 +639,10 @@ namespace WheresMyLeftSock.UI
         {
             bool playing = _gm != null && _gm.CurrentState == GameState.Playing;
             bool paused = playing && _gm.IsPaused;
+            bool swooping = playing && _gm.IsIntroSwoopActive;
 
             if (_pausePanel != null) _pausePanel.SetActive(paused);
-            if (_controlsHint != null) _controlsHint.SetActive(playing && !paused);
+            if (_controlsHint != null) _controlsHint.SetActive(playing && !paused && !swooping);
         }
 
         private void HandleResumeClicked()

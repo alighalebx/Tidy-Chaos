@@ -107,6 +107,7 @@ namespace WheresMyLeftSock.UI
                     _subscribedGameManager.OnGameStateChanged -= HandleGameStateChanged;
                     _subscribedGameManager.OnTimerUpdated -= HandleTimerUpdated;
                     _subscribedGameManager.OnPauseChanged -= HandlePauseChanged;
+                    _subscribedGameManager.OnIntroSwoopChanged -= HandleIntroSwoopChanged;
                 }
 
                 _subscribedGameManager = gameManager;
@@ -115,6 +116,7 @@ namespace WheresMyLeftSock.UI
                     _subscribedGameManager.OnGameStateChanged += HandleGameStateChanged;
                     _subscribedGameManager.OnTimerUpdated += HandleTimerUpdated;
                     _subscribedGameManager.OnPauseChanged += HandlePauseChanged;
+                    _subscribedGameManager.OnIntroSwoopChanged += HandleIntroSwoopChanged;
                 }
             }
 
@@ -140,6 +142,7 @@ namespace WheresMyLeftSock.UI
                 _subscribedGameManager.OnGameStateChanged -= HandleGameStateChanged;
                 _subscribedGameManager.OnTimerUpdated -= HandleTimerUpdated;
                 _subscribedGameManager.OnPauseChanged -= HandlePauseChanged;
+                _subscribedGameManager.OnIntroSwoopChanged -= HandleIntroSwoopChanged;
                 _subscribedGameManager = null;
             }
 
@@ -251,11 +254,22 @@ namespace WheresMyLeftSock.UI
             RefreshGameplayReticleVisibility();
         }
 
+        private void HandleIntroSwoopChanged(bool swooping)
+        {
+            RefreshGameplayReticleVisibility();
+        }
+
         private void RefreshGameplayReticleVisibility()
         {
             bool visible = gameManager != null &&
                            gameManager.CurrentState == GameState.Playing &&
-                           !gameManager.IsPaused;
+                           !gameManager.IsPaused &&
+                           !gameManager.IsIntroSwoopActive;
+
+            if (timerText != null)
+            {
+                timerText.gameObject.SetActive(gameManager == null || gameManager.CurrentState != GameState.Menu);
+            }
 
             if (crosshairImage != null)
             {

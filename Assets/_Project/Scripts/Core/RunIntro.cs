@@ -18,6 +18,9 @@ namespace WheresMyLeftSock.Core
         private AudioSource _alarm;
         private bool _waiting;
         private float _readyAt;
+        private bool _introCarHonked;
+
+        public static void ResetForNewSession() => HasPlayedOnce = false;
 
         private IEnumerator Start()
         {
@@ -39,9 +42,25 @@ namespace WheresMyLeftSock.Core
             if (_alarm != null) _alarm.loop = true;
         }
 
+        private void OnDestroy()
+        {
+            if (_alarm != null)
+            {
+                _alarm.loop = false;
+                _alarm.Stop();
+            }
+        }
+
         private void Update()
         {
-            if (!_waiting || Time.unscaledTime < _readyAt) return;
+            if (!_waiting) return;
+            if (!_introCarHonked && Time.unscaledTime >= _readyAt + 0.6f)
+            {
+                _introCarHonked = true;
+                World.RideCar.Instance?.Honk(1);
+            }
+
+            if (Time.unscaledTime < _readyAt) return;
             bool pressed = (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) ||
                            (Mouse.current != null && (Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame)) ||
                            (Gamepad.current != null && (Gamepad.current.buttonSouth.wasPressedThisFrame || Gamepad.current.startButton.wasPressedThisFrame));

@@ -34,9 +34,11 @@ namespace WheresMyLeftSock.Core
         public event Action<GameState> OnGameStateChanged;
         public event Action<float, float> OnTimerUpdated;
         public event Action<bool> OnPauseChanged;
+        public event Action<bool> OnIntroSwoopChanged;
 
         public GameState CurrentState { get; private set; } = GameState.Menu;
         public bool IsPaused { get; private set; }
+        public bool IsIntroSwoopActive { get; private set; }
         public float TimeRemaining { get; private set; }
         public float RoundDuration => roundDurationSeconds;
         public float NormalizedTimeRemaining =>
@@ -72,7 +74,7 @@ namespace WheresMyLeftSock.Core
 
         private void Update()
         {
-            if (CurrentState != GameState.Playing || IsPaused)
+            if (CurrentState != GameState.Playing || IsPaused || IsIntroSwoopActive)
             {
                 return;
             }
@@ -110,6 +112,7 @@ namespace WheresMyLeftSock.Core
         public void EnterMenu()
         {
             ClearPauseIfNeeded();
+            ClearIntroSwoopIfNeeded();
             TimeRemaining = roundDurationSeconds;
             CurrentState = GameState.Menu;
             SetPlayerActive(false);
@@ -124,6 +127,7 @@ namespace WheresMyLeftSock.Core
         public void StartRun()
         {
             ClearPauseIfNeeded();
+            ClearIntroSwoopIfNeeded();
             TimeRemaining = roundDurationSeconds;
             CurrentState = GameState.Playing;
             SetPlayerActive(true);
@@ -143,6 +147,7 @@ namespace WheresMyLeftSock.Core
             }
 
             ClearPauseIfNeeded();
+            ClearIntroSwoopIfNeeded();
             CurrentState = GameState.Win;
             SetPlayerActive(false);
             OnGameStateChanged?.Invoke(CurrentState);
@@ -159,6 +164,7 @@ namespace WheresMyLeftSock.Core
             }
 
             ClearPauseIfNeeded();
+            ClearIntroSwoopIfNeeded();
             TimeRemaining = 0f;
             CurrentState = GameState.Lose;
             SetPlayerActive(false);
@@ -166,11 +172,46 @@ namespace WheresMyLeftSock.Core
         }
 
         /// <summary>
+        /// Gates timer countdown and movement input during the brief wake-up camera swoop.
+        /// </summary>
+        public void SetIntroSwoopActive(bool active)
+        {
+            if (IsIntroSwoopActive == active)
+            {
+                return;
+            }
+
+            IsIntroSwoopActive = active;
+            if (CurrentState == GameState.Playing && !IsPaused)
+            {
+                if (active)
+                {
+                    SetPlayerActive(false);
+                    if (playerController != null)
+                    {
+                        playerController.SetCursorLocked(true);
+                    }
+                    else
+                    {
+                        Cursor.lockState = CursorLockMode.Locked;
+                        Cursor.visible = false;
+                    }
+                }
+                else
+                {
+                    SetPlayerActive(true);
+                }
+            }
+
+            OnIntroSwoopChanged?.Invoke(IsIntroSwoopActive);
+        }
+
+        /// <summary>
         /// Pauses or resumes the active run without dropping the player's currently held prop.
         /// </summary>
         public void SetPaused(bool paused)
         {
-            if (paused && CurrentState != GameState.Playing)
+            if (paused && (CurrentState != GameState.Playing || IsIntroSwoopActive))
             {
                 return;
             }
@@ -206,6 +247,7 @@ namespace WheresMyLeftSock.Core
         {
             Time.timeScale = 1f;
             IsPaused = false;
+            ClearIntroSwoopIfNeeded();
             Scene activeScene = SceneManager.GetActiveScene();
 
             if (activeScene.buildIndex >= 0)
@@ -237,6 +279,17 @@ namespace WheresMyLeftSock.Core
 
             IsPaused = false;
             OnPauseChanged?.Invoke(false);
+        }
+
+        private void ClearIntroSwoopIfNeeded()
+        {
+            if (!IsIntroSwoopActive)
+            {
+                return;
+            }
+
+            IsIntroSwoopActive = false;
+            OnIntroSwoopChanged?.Invoke(false);
         }
 
         private void ResolveSceneReferences()

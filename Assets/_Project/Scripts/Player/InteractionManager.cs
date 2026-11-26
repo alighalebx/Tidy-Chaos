@@ -162,6 +162,12 @@ namespace WheresMyLeftSock.Player
 
         private void Start()
         {
+            ThirdPersonCamera camRig = _playerController != null ? _playerController.CameraRig : FindFirstObjectByType<ThirdPersonCamera>();
+            if (camRig != null && camRig.CurrentMode != CameraMode.Gameplay)
+            {
+                return;
+            }
+
             if (cameraTransform != null && Vector3.Distance(cameraTransform.position, transform.position) > 8f)
             {
                 Debug.LogWarning(
