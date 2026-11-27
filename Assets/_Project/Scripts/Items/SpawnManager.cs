@@ -20,7 +20,7 @@ namespace WheresMyLeftSock.Items
         [SerializeField] private List<GameObject> coverClutter = new List<GameObject>();
         [Tooltip("-1 = random every run.")]
         [SerializeField] private int seed = -1;
-        [SerializeField] private bool logPlacements = true;
+        [SerializeField] private bool logPlacements = false;
 
         [Header("Chaos Hazard #2: Sock-Stealing Pet")]
         [SerializeField] private bool enableSockStealingPet = true;

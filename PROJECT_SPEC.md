@@ -35,7 +35,7 @@ Every core mechanic reinforces the theme:
 1. **Physically Hidden:** Required items are never sitting out in plain sight. They are tucked *under* physics-enabled clutter (`UnderClutter`: pillows, laundry piles, towels, boxes), *inside* articulated furniture (`InsideDrawer`: drawers, cabinets, dressers), on high shelves (`HighShelf`), or tucked on the floor (`FloorHidden`).
 2. **Hidden in Plain Sight (Decoys):** Mismatched, dirty, or ridiculous clothing/accessory items (*Soggy Sock, Holey Sock, Clown Pants, Inside-Out Shirt, Toy Keys*) spawn in `ObviousDecoySpot`s or leftover anchors to bait panicked players.
 3. **Hidden Until Interacted:** Some hiding spots require multi-step rummaging (e.g., open cabinet door or drawer $\rightarrow$ shove/yeet clutter aside $\rightarrow$ equip hidden item).
-4. **Dynamically Hidden (Stretch):** Optional mid-run pet hazard (`PetAI`) that steals an exposed sock and hides it in another room.
+4. **Dynamically Hidden:** Optional mid-run pet hazard (`PetAI`) that steals an exposed sock and hides it in another room.
 
 ---
 
@@ -105,11 +105,11 @@ Default round duration is `90s` (`GameManager.roundDurationSeconds`, configurabl
 * **$t \le 12\text{s}$:** Rapid panic honks + revving + `1.3x` music pitch + pulsing runtime `PanicVolume` (red vignette + chromatic aberration) + heartbeat SFX + camera shake/FOV squeeze + phone toast: *"LEAVING IN 10 SECONDS!!"*
 * **$t = 0\text{s}$:** Tire screech + `RideCar` wheelie peel-out with smoke puffs $\rightarrow$ Game Over trigger.
 
-### 4.6 Chaos Hazards (`SlipperyHazard` & Stretch `PetAI`)
+### 4.6 Chaos Hazards (`SlipperyHazard` & `PetAI`)
 * **Implemented — Slippery Hazards (`SlipperyHazard`):**
   * `Hazard_Puddle` in the Bathroom and `Hazard_Legos` in the Hallway trip players sprinting at $\ge 5.0\text{ m/s}$, knocking them down (`Knockdown`), sliding them forward on momentum, briefly slowing recovery, shaking the camera, and playing a slide-whistle slip SFX.
-* **Stretch Goal — The Sock-Stealing Pet (`PetAI`):**
-  * A waypoint-roaming cat or dog that grabs an uncollected sock and bolts to another room until chased down and interacted with.
+* **Implemented — The Sock-Stealing Pet (`PetAI`):**
+  * `SpawnManager` spawns a `ChaosCat` at runtime (`enableSockStealingPet`). After a `12s` grace period it roams the house, grabs an uncollected sock (`22s` cooldown) and bolts to another room until chased down and interacted with.
 
 ---
 
@@ -202,7 +202,7 @@ Assets/_Project
 - [x] Add camera juice (sprint FOV warp, wall-bonk/slip shake, panic vignette & chromatic aberration under `12s`).
 - [x] Implement `SlipperyHazard` (Bathroom puddle & Hallway Legos).
 - [x] Implement wake-up title overlay (`RunIntro` + `GameUI`) and runtime `PauseMenuUI` (`Esc` pause, Master Volume & Mouse Sensitivity sliders, Controls Card & hint strip, Quit).
-- [ ] *(Stretch)* Implement `PetAI` sock-stealing household pet or dedicated `MainMenu.unity` scene.
+- [x] *(Stretch)* Implement `PetAI` sock-stealing household pet (runtime-spawned `ChaosCat`). Dedicated `MainMenu.unity` scene dropped — the `RunIntro` title card covers it.
 
 ### Phase 5 (Day 5): Audio, Balance & Packaging
 - [x] Integrate procedural SFX & music suite (`Sfx`, `AudioHub`, `GameAudio`, `ImpactSound`) and standalone single-`MonoBehaviour`-per-file compliance.

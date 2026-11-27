@@ -30762,7 +30762,12 @@ MonoBehaviour:
   - {fileID: 5933744142940940510, guid: 59d777ec282c8834fa76a3cc8ad9b10e, type: 3}
   - {fileID: 3019197469916591144, guid: df447df5d36ffa748925281a2f3a110a, type: 3}
   seed: -1
-  logPlacements: 1
+  logPlacements: 0
+  enableSockStealingPet: 1
+  petGraceDelay: 12
+  petMoveSpeed: 2.8
+  petFleeSpeed: 4.6
+  petStealCooldown: 22
 --- !u!114 &1444483465
 MonoBehaviour:
   m_ObjectHideFlags: 0
