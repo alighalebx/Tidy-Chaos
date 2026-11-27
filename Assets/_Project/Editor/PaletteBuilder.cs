@@ -169,8 +169,11 @@ namespace WheresMyLeftSock.EditorTools
 
         public static string ActiveScheme => EditorPrefs.GetString(SchemePref, DefaultScheme);
 
+        private static string _loadedScheme;
+
         private static void LoadScheme(string name)
         {
+            _loadedScheme = name;
             if (!Schemes.TryGetValue(name, out Scheme s)) s = Schemes[DefaultScheme];
             RoomPaint["LivingRoom"] = s.Living; RoomPaint["Kitchen"] = s.Kitchen; RoomPaint["Hallway"] = s.Hall;
             RoomPaint["Bedroom"] = s.Bedroom; RoomPaint["Bathroom"] = s.Bath; RoomPaint["Outside"] = s.Outside;
@@ -298,6 +301,7 @@ namespace WheresMyLeftSock.EditorTools
                     Mesh mesh = mf.sharedMesh;
                     if (r == null || mesh == null) continue;
                     Material[] mats = r.sharedMaterials;
+                    Material[] source = (PrefabUtility.GetCorrespondingObjectFromOriginalSource(r) as Renderer)?.sharedMaterials;
                     Vector3[] normals = null;
                     bool dirty = false;
                     for (int i = 0; i < mats.Length && i < mesh.subMeshCount; i++)
@@ -306,10 +310,23 @@ namespace WheresMyLeftSock.EditorTools
                         string n = mats[i].name;
                         bool face = n == "P_Wall__defaultMat" || n == "P_Wall_metalDark" || n.StartsWith("P_Paint_");
                         if (!face) continue;
-                        if (normals == null) normals = mesh.normals;
-                        Vector3 avg = Vector3.zero;
-                        foreach (int k in mesh.GetIndices(i)) avg += normals[k];
-                        Vector3 dir = mf.transform.TransformDirection(avg).normalized;
+
+                        // Which way the face points, in mesh space. Kenney walls use a fixed material per face
+                        // (_defaultMat = -Z, metalDark = +Z) - no mesh read needed, so it also works after Play
+                        // mode has released the CPU copy of these non-readable meshes.
+                        Vector3 local;
+                        string src = source != null && i < source.Length && source[i] != null ? source[i].name : null;
+                        if (src == "_defaultMat") local = Vector3.back;
+                        else if (src == "metalDark") local = Vector3.forward;
+                        else if (mesh.isReadable)
+                        {
+                            if (normals == null) normals = mesh.normals;
+                            local = Vector3.zero;
+                            foreach (int k in mesh.GetIndices(i)) local += normals[k];
+                        }
+                        else continue;
+
+                        Vector3 dir = mf.transform.TransformDirection(local).normalized;
                         dir.y = 0f;
                         string room = RoomAt(r.bounds.center + dir.normalized * 0.5f);
                         Material paint = Paint(room, RoomPaint[room]);
@@ -409,6 +426,8 @@ namespace WheresMyLeftSock.EditorTools
 
         public static int ApplyTo(GameObject root)
         {
+            // callers outside ApplyAll (e.g. the furniture catalog) must not write the built-in default colours
+            if (_loadedScheme != ActiveScheme) LoadScheme(ActiveScheme);
             int changed = 0;
             foreach (Renderer r in root.GetComponentsInChildren<Renderer>(true))
             {
