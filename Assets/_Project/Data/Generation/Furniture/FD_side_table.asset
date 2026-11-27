@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_side_table
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: side_table
+  displayName: Side Table
+  prefab: {fileID: 1865085762137552364, guid: 91cde9358d9874e4782330d67c7fc5b0, type: 3}
+  layer: 1
+  rooms: 13
+  size: {x: 1.1223985, y: 0.80725574, z: 0.46683004}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0.5
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 1
+  sideGap: 0.15
+  fitted: 0
+  sideAccess: 0
+  isSurface: 1
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 0
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 1
+  keepOffLanes: 0
+  bundle:
+  - options:
+    - {fileID: 8237108819302310686, guid: a68e47004a9617c4487564f90b96a17f, type: 3}
+    - {fileID: 6517679865266351095, guid: 33cb2c40fe0610e4d80d5a41691170a9, type: 3}
+    localPosition: {x: -0.35, y: 0.80725574, z: 0}
+    localYaw: 0
+    yawJitter: 180
+    chance: 0.6
+    onFloor: 0
+    scatter: 0
+    tipChance: 0
+  - options:
+    - {fileID: 8867738713982932289, guid: 7b80d72842d63524f8f82764bc464f01, type: 3}
+    - {fileID: 3742230231758750251, guid: 2b74d7919e5ffae47822e10124bd62de, type: 3}
+    localPosition: {x: 0.3, y: 0.80725574, z: 0.02}
+    localYaw: 0
+    yawJitter: 30
+    chance: 0.4
+    onFloor: 0
+    scatter: 0
+    tipChance: 0

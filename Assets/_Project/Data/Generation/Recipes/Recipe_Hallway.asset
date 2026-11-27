@@ -1,0 +1,573 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eae4d5a333525247b7f18983c16a10b, type: 3}
+  m_Name: Recipe_Hallway
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.RoomRecipe
+  room: 3
+  entries:
+  - key: bench
+    options:
+    - {fileID: 11400000, guid: f3cb471a9aaff8345a1248ea4b494e06, type: 2}
+    min: 1
+    max: 1
+    chance: 1
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: runner
+    options:
+    - {fileID: 11400000, guid: 0f2e552bea7c28845b68a69c9e4ded41, type: 2}
+    min: 0
+    max: 1
+    chance: 0.85
+    placement: 1
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 1
+    preferCenterLine: 1
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: coat_closet
+    options:
+    - {fileID: 11400000, guid: d76092095cea29d47ab45a4fede7da97, type: 2}
+    min: 1
+    max: 1
+    chance: 1
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: side_table
+    options:
+    - {fileID: 11400000, guid: 1e04a6891823fae4bbb48e4238a9d0cf, type: 2}
+    min: 0
+    max: 1
+    chance: 0.85
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: hooks
+    options:
+    - {fileID: 11400000, guid: c33572773052fc84387b56934939509c, type: 2}
+    min: 1
+    max: 1
+    chance: 1
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: wall_lamp
+    options:
+    - {fileID: 11400000, guid: 6285335ad01289f47b564d74551718ef, type: 2}
+    min: 0
+    max: 1
+    chance: 0.7
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: plant
+    options:
+    - {fileID: 11400000, guid: fd8b65e37c745fd449d85b3696d2c819, type: 2}
+    - {fileID: 11400000, guid: 6a50ec131ede7794d96a0d7d8b0229dd, type: 2}
+    min: 0
+    max: 1
+    chance: 0.6
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 1
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: poster
+    options:
+    - {fileID: 11400000, guid: 8bd62809c29de104eb89e6de9128fb95, type: 2}
+    - {fileID: 11400000, guid: fdb1628f9aa6e6c4f850cd5e644ee0cb, type: 2}
+    min: 0
+    max: 1
+    chance: 0.5
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: legos
+    options:
+    - {fileID: 11400000, guid: c0033c3586f3ef041a1e0ec971c7f8c2, type: 2}
+    min: 0
+    max: 1
+    chance: 1
+    placement: 1
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 1
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: clutter
+    options:
+    - {fileID: 11400000, guid: 8ec7c973aff2308478312b7fbb2c1ac2, type: 2}
+    - {fileID: 11400000, guid: a0aac5559d54ec347a2d743b0892a214, type: 2}
+    - {fileID: 11400000, guid: 9de2d79b5b7575745956cfcbc802590a, type: 2}
+    - {fileID: 11400000, guid: 4d2d873a3934ab14b868138c15987e3b, type: 2}
+    - {fileID: 11400000, guid: 02fadeb4262718541be665029da8095f, type: 2}
+    - {fileID: 11400000, guid: b0f33cb6495eb414c8edabb217d4856a, type: 2}
+    - {fileID: 11400000, guid: 72a8133166c5f8b4c994dc662e9c535b, type: 2}
+    min: 3
+    max: 6
+    chance: 0.7
+    placement: 1
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 1
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: mess
+    options:
+    - {fileID: 11400000, guid: 2044168ff6f7e7c43b370d8a84f84943, type: 2}
+    - {fileID: 11400000, guid: a0aac5559d54ec347a2d743b0892a214, type: 2}
+    min: 0
+    max: 1
+    chance: 0.7
+    placement: 1
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: spill
+    options:
+    - {fileID: 11400000, guid: 72a8133166c5f8b4c994dc662e9c535b, type: 2}
+    - {fileID: 11400000, guid: 02fadeb4262718541be665029da8095f, type: 2}
+    - {fileID: 11400000, guid: 9de2d79b5b7575745956cfcbc802590a, type: 2}
+    min: 0
+    max: 3
+    chance: 0.7
+    placement: 2
+    anchorKey: mess
+    relation: 7
+    minDistance: 0.1
+    maxDistance: 0.9
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: tucked
+    options:
+    - {fileID: 11400000, guid: 7ef12780f3b2d0249be2f097046d7c0d, type: 2}
+    min: 1
+    max: 1
+    chance: 1
+    placement: 0
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 1
+    preferSightline: 0
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75
+  - key: decoy
+    options:
+    - {fileID: 11400000, guid: 761c0e80adc30054392a5ecd1d245319, type: 2}
+    min: 0
+    max: 1
+    chance: 0.5
+    placement: 1
+    anchorKey: 
+    relation: 0
+    minDistance: 0
+    maxDistance: 0
+    preferCorner: 0
+    preferWindow: 0
+    avoidWindow: 0
+    avoidFacingDoorway: 0
+    preferNearDoorway: 0
+    alignLongAxis: 0
+    preferCenterLine: 0
+    preferEdges: 0
+    preferNook: 0
+    preferSightline: 1
+    preferAboveFurniture: 0
+    preferLanes: 0
+    openingKind: 3
+    counter:
+      fridge: {fileID: 0}
+      stove: {fileID: 0}
+      sink: {fileID: 0}
+      corner: {fileID: 0}
+      hood: {fileID: 0}
+      microwave: {fileID: 0}
+      cabinets: []
+      uppers: []
+      minModules: 4
+      maxModules: 9
+      lShapeChance: 0.5
+      legMax: 3
+      upperChance: 0.65
+      microwaveChance: 0.75

@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_coffee_table
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: coffee_table
+  displayName: Coffee Table
+  prefab: {fileID: 1408171315053758831, guid: 1e04ffd93a0374242ba69d2d57736d43, type: 3}
+  layer: 0
+  rooms: 4
+  size: {x: 1.3880919, y: 0.48299998, z: 0.8400001}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 1
+  sideGap: 0.25
+  fitted: 0
+  sideAccess: 0
+  isSurface: 1
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 8
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 1
+  bundle:
+  - options:
+    - {fileID: 3742230231758750251, guid: 2b74d7919e5ffae47822e10124bd62de, type: 3}
+    - {fileID: 8867738713982932289, guid: 7b80d72842d63524f8f82764bc464f01, type: 3}
+    localPosition: {x: -0.45, y: 0.48299998, z: 0.1}
+    localYaw: 0
+    yawJitter: 35
+    chance: 0.7
+    onFloor: 0
+    scatter: 0.3
+    tipChance: 0
+  - options:
+    - {fileID: 3486149719871188344, guid: 100b09239fce98842bb401cf8ed041aa, type: 3}
+    - {fileID: 3019197469916591144, guid: df447df5d36ffa748925281a2f3a110a, type: 3}
+    localPosition: {x: 0.45, y: 0.48299998, z: -0.05}
+    localYaw: 0
+    yawJitter: 35
+    chance: 0.6
+    onFloor: 0
+    scatter: 0.25
+    tipChance: 0

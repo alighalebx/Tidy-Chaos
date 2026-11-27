@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &429830440745609654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1579927146778018701}
+  - component: {fileID: 4574848364243400985}
+  m_Layer: 0
+  m_Name: HS_InsideDrawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1579927146778018701
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429830440745609654}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.208, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1454053631988124519}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4574848364243400985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429830440745609654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642633ebfbd93064686ad1135a8f46a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.Items.HidingSpot
+  spotID: 
+  room: 0
+  concealmentType: 1
+  isOccupied: 0
+--- !u!1 &914791498185497874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1454053631988124519}
+  - component: {fileID: 596267167838117251}
+  m_Layer: 0
+  m_Name: tv_cabinet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1454053631988124519
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914791498185497874}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4513073354011436376}
+  - {fileID: 1579927146778018701}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &596267167838117251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914791498185497874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fab36aaa22a99f40a8be55cd949817d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.PlacedFurniture
+  def: {fileID: 11400000, guid: df513ccdb1158264997bab7128e9a854, type: 2}
+  room: 0
+  entryKey: 
+  spots:
+  - {fileID: 4574848364243400985}
+--- !u!1001 &4119405184727941811
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1454053631988124519}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.2519999
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -3057147933212194604, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -3057147933212194604, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    - target: {fileID: -267388480630076389, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    - target: {fileID: -267388480630076389, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: 919132149155446097, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      propertyPath: m_Name
+      value: cabinetTelevisionDoors
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7712062829662974662}
+    - targetCorrespondingSourceObject: {fileID: -413930134452501938, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1068135537175831732}
+    - targetCorrespondingSourceObject: {fileID: -413930134452501938, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8735913560793599829}
+    - targetCorrespondingSourceObject: {fileID: -413930134452501938, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6622559322935911120}
+    - targetCorrespondingSourceObject: {fileID: -5757406101998815754, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1219091261391445486}
+    - targetCorrespondingSourceObject: {fileID: -5757406101998815754, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4064459740353857445}
+    - targetCorrespondingSourceObject: {fileID: -5757406101998815754, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4260413590532691825}
+  m_SourcePrefab: {fileID: 100100000, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+--- !u!1 &662737882996094789 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5757406101998815754, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+  m_PrefabInstance: {fileID: 4119405184727941811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1219091261391445486
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662737882996094789}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 6309839297837962469, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+--- !u!114 &4064459740353857445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662737882996094789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: TV Cabinet Door
+  mode: 1
+  localSlideOffset: {x: 0, y: 0, z: 0}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: -100
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &4260413590532691825
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662737882996094789}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!1 &3885050537490628578 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+  m_PrefabInstance: {fileID: 4119405184727941811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &7712062829662974662
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3885050537490628578}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1897389733928533576, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+--- !u!4 &4513073354011436376 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+  m_PrefabInstance: {fileID: 4119405184727941811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4857833192612004093 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -413930134452501938, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+  m_PrefabInstance: {fileID: 4119405184727941811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1068135537175831732
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857833192612004093}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3932981460893855642, guid: 32c0915eaf10eee4e9effec1bc6e0b02, type: 3}
+--- !u!114 &8735913560793599829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857833192612004093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: TV Cabinet Door
+  mode: 1
+  localSlideOffset: {x: 0, y: 0, z: 0}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: 100
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &6622559322935911120
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857833192612004093}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

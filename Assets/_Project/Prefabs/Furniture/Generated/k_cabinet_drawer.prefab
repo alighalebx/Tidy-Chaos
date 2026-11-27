@@ -1,0 +1,462 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3247362307785557064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8490722618622648147}
+  - component: {fileID: 5461854648845960616}
+  m_Layer: 0
+  m_Name: k_cabinet_drawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8490722618622648147
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3247362307785557064}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2553901411982261976}
+  - {fileID: 8818667324993671589}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5461854648845960616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3247362307785557064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fab36aaa22a99f40a8be55cd949817d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.PlacedFurniture
+  def: {fileID: 11400000, guid: 99655972f2368d24791afb709fb55449, type: 2}
+  room: 0
+  entryKey: 
+  spots:
+  - {fileID: 3139711057396572188}
+  - {fileID: 7559411975120979939}
+--- !u!1 &4799447161345188622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8818667324993671589}
+  - component: {fileID: 7559411975120979939}
+  m_Layer: 0
+  m_Name: HS_ObviousDecoySpot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8818667324993671589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4799447161345188622}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.8919999, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8490722618622648147}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7559411975120979939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4799447161345188622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642633ebfbd93064686ad1135a8f46a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.Items.HidingSpot
+  spotID: 
+  room: 0
+  concealmentType: 4
+  isOccupied: 0
+--- !u!1 &5243069331919732370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 681545573177715485}
+  - component: {fileID: 3139711057396572188}
+  m_Layer: 0
+  m_Name: HS_InsideDrawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &681545573177715485
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5243069331919732370}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: -0.00000004371139}
+  m_LocalPosition: {x: 1.8815578, y: 0.19047594, z: 1.7999998}
+  m_LocalScale: {x: 4.7619047, y: 4.7619047, z: 4.7619047}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7898070275924428000}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3139711057396572188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5243069331919732370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642633ebfbd93064686ad1135a8f46a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.Items.HidingSpot
+  spotID: 
+  room: 0
+  concealmentType: 1
+  isOccupied: 0
+--- !u!1001 &2665003640316451123
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8490722618622648147}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.45150003
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.47249997
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    - target: {fileID: -7511558181221131132, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -6956395885858268048, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f5d6b707302687445870744519be4406, type: 2}
+    - target: {fileID: -6956395885858268048, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -6956395885858268048, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    - target: {fileID: 919132149155446097, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: m_Name
+      value: kitchenCabinetDrawer
+      objectReference: {fileID: 0}
+    - target: {fileID: 9077926073120308842, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: 9077926073120308842, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f5d6b707302687445870744519be4406, type: 2}
+    - target: {fileID: 9077926073120308842, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5287344302264114643, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 681545573177715485}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1012314388286516721}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2341228678625473130}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5601185620159402447}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7433268804254455541}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4455971544063100367}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4048461649817253674}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4012558791103962353}
+  m_SourcePrefab: {fileID: 100100000, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+--- !u!1 &1844837842208655696 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4423045620967985251, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+  m_PrefabInstance: {fileID: 2665003640316451123}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &2341228678625473130
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1844837842208655696}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 5779197439840542771, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+--- !u!114 &5601185620159402447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1844837842208655696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: Kitchen Cabinet Door
+  mode: 1
+  localSlideOffset: {x: 0, y: 0, z: 0}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: 100
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &7433268804254455541
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1844837842208655696}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!4 &2553901411982261976 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+  m_PrefabInstance: {fileID: 2665003640316451123}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2898795753271092322 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+  m_PrefabInstance: {fileID: 2665003640316451123}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1012314388286516721
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2898795753271092322}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3040058778021699392, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+--- !u!1 &7515470541145938245 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5528078466911944822, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+  m_PrefabInstance: {fileID: 2665003640316451123}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &4455971544063100367
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7515470541145938245}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -8930740714778682797, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+--- !u!114 &4048461649817253674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7515470541145938245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: Kitchen Cabinet Drawer
+  mode: 0
+  localSlideOffset: {x: 0.0000002447838, y: 0, z: -2.8}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: 0
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &4012558791103962353
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7515470541145938245}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!4 &7898070275924428000 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5287344302264114643, guid: 804d24c15d2e35c4ebd8d294462a521e, type: 3}
+  m_PrefabInstance: {fileID: 2665003640316451123}
+  m_PrefabAsset: {fileID: 0}

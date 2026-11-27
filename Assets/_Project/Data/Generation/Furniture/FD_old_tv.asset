@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_old_tv
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: old_tv
+  displayName: Old TV
+  prefab: {fileID: 4210769524472890621, guid: 42068b9f028425841830c99e3524f8ce, type: 3}
+  layer: 2
+  rooms: 5
+  size: {x: 0.861, y: 0.567, z: 0.56700003}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 0
+  sideGap: 0.12
+  fitted: 0
+  sideAccess: 0
+  isSurface: 0
+  isLoose: 1
+  coverSpotChance: 0
+  tipChance: 0.25
+  yawJitter: 0
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 0
+  bundle: []

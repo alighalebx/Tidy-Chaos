@@ -1,0 +1,400 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4640683282485734911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6600766633764155912}
+  - component: {fileID: 755181245954665970}
+  m_Layer: 0
+  m_Name: nightstand
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6600766633764155912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4640683282485734911}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8519084855856940705}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &755181245954665970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4640683282485734911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fab36aaa22a99f40a8be55cd949817d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.PlacedFurniture
+  def: {fileID: 11400000, guid: 8b7e278f47ecc9545ae1ea4e62867b8c, type: 2}
+  room: 0
+  entryKey: 
+  spots:
+  - {fileID: 5936855356337757735}
+--- !u!1 &6555576925077207511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5082956346603628229}
+  - component: {fileID: 5936855356337757735}
+  m_Layer: 0
+  m_Name: HS_InsideDrawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5082956346603628229
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6555576925077207511}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: -0.00000004371139}
+  m_LocalPosition: {x: 0.984, y: 0.19438207, z: -0.88149995}
+  m_LocalScale: {x: 4.7619047, y: 4.7619047, z: 4.7619047}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4094630050653895833}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5936855356337757735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6555576925077207511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642633ebfbd93064686ad1135a8f46a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.Items.HidingSpot
+  spotID: 
+  room: 0
+  concealmentType: 1
+  isOccupied: 0
+--- !u!1001 &8193006458384556362
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6600766633764155912}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.25830004
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.20233497
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -6956395885858268048, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: -6956395885858268048, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    - target: {fileID: 919132149155446097, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: m_Name
+      value: cabinetBedDrawer
+      objectReference: {fileID: 0}
+    - target: {fileID: 9077926073120308842, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4113ee148d0e46f4884f386ac3aaac8e, type: 2}
+    - target: {fileID: 9077926073120308842, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c7f1af662352bf49bd4aee3e1abe05f, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5287344302264114643, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5082956346603628229}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 723473609226434751}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8773005764953762449}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 45573981923383474}
+    - targetCorrespondingSourceObject: {fileID: 4423045620967985251, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 963918076436689981}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8664552095170263439}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2915894577869638051}
+    - targetCorrespondingSourceObject: {fileID: 5528078466911944822, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7582511958376235994}
+  m_SourcePrefab: {fileID: 100100000, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+--- !u!4 &4094630050653895833 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5287344302264114643, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+  m_PrefabInstance: {fileID: 8193006458384556362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4396861120342384956 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5528078466911944822, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+  m_PrefabInstance: {fileID: 8193006458384556362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &8664552095170263439
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4396861120342384956}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -8930740714778682797, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+--- !u!114 &2915894577869638051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4396861120342384956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: Nightstand Drawer
+  mode: 0
+  localSlideOffset: {x: 0.00000010788845, y: 0, z: -1.2341}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: 0
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &7582511958376235994
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4396861120342384956}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!1 &5535688626561282345 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4423045620967985251, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+  m_PrefabInstance: {fileID: 8193006458384556362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &8773005764953762449
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5535688626561282345}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 5779197439840542771, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+--- !u!114 &45573981923383474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5535688626561282345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec321ab18d1084b4498d2151ed69c1e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.OpenableFurniture
+  label: Nightstand Door
+  mode: 1
+  localSlideOffset: {x: 0, y: 0, z: 0}
+  localHingeAxis: {x: 0, y: 1, z: 0}
+  openAngle: 100
+  openSpeed: 6
+  startOpen: 0
+  openSfx: {fileID: 0}
+  closeSfx: {fileID: 0}
+--- !u!54 &963918076436689981
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5535688626561282345}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!4 &8519084855856940705 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+  m_PrefabInstance: {fileID: 8193006458384556362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9039302961921203227 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}
+  m_PrefabInstance: {fileID: 8193006458384556362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &723473609226434751
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9039302961921203227}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -1454132298285011494, guid: f764bfa7e2753604b84e3318c220cca6, type: 3}

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_armchair
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: armchair
+  displayName: Armchair
+  prefab: {fileID: 2919065663556227587, guid: 5059deae4ab93ef4da598ad243fac682, type: 3}
+  layer: 0
+  rooms: 4
+  size: {x: 1.0290002, y: 0.96599996, z: 0.86100006}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0.3
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 0
+  sideGap: 0.2
+  fitted: 0
+  sideAccess: 0
+  isSurface: 0
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 14
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 1
+  bundle:
+  - options:
+    - {fileID: 3816595620538344072, guid: fcf99d8e4334c6b4fb141c68af02b39a, type: 3}
+    localPosition: {x: 0, y: 0.48299998, z: 0.05}
+    localYaw: 0
+    yawJitter: 20
+    chance: 0.3
+    onFloor: 0
+    scatter: 0
+    tipChance: 0

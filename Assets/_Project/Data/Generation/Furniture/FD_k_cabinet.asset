@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_k_cabinet
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: k_cabinet
+  displayName: Kitchen Cabinet
+  prefab: {fileID: 8017535110374477206, guid: 53b16710a41e2974392f9faa017c9db7, type: 3}
+  layer: 0
+  rooms: 16
+  size: {x: 0.90300006, y: 0.945, z: 0.94500005}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0.9
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 1
+  sideGap: 0.05
+  fitted: 0
+  sideAccess: 0
+  isSurface: 1
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 0
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 0
+  bundle:
+  - options:
+    - {fileID: 741951388993180720, guid: e7266193e36471046be4e05558f066cb, type: 3}
+    - {fileID: 4538661672054435182, guid: 9c2fa685fc2beae4b83cabd216c51380, type: 3}
+    - {fileID: 3678701917587162759, guid: 1ce164e080ce0a64886a6151500eec33, type: 3}
+    - {fileID: 7048321297676312212, guid: 351b34b719da4bd4bb49b3708668c369, type: 3}
+    - {fileID: 8237108819302310686, guid: a68e47004a9617c4487564f90b96a17f, type: 3}
+    localPosition: {x: 0.22, y: 0.8819999, z: -0.22}
+    localYaw: 0
+    yawJitter: 20
+    chance: 0.3
+    onFloor: 0
+    scatter: 0.1
+    tipChance: 0

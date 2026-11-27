@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_books_floor
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: books_floor
+  displayName: Books
+  prefab: {fileID: 3742230231758750251, guid: 2b74d7919e5ffae47822e10124bd62de, type: 3}
+  layer: 2
+  rooms: 13
+  size: {x: 0.31593996, y: 0.21819483, z: 0.19845003}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 0
+  sideGap: 0.12
+  fitted: 0
+  sideAccess: 0
+  isSurface: 0
+  isLoose: 1
+  coverSpotChance: 0
+  tipChance: 0.4
+  yawJitter: 0
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 0
+  bundle: []

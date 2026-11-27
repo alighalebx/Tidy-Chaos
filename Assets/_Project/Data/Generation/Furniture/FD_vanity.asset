@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_vanity
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: vanity
+  displayName: Vanity
+  prefab: {fileID: 7212652435734773517, guid: ae65911cf77914840a55073d0d899f30, type: 3}
+  layer: 1
+  rooms: 2
+  size: {x: 0.90300006, y: 0.99069214, z: 0.67200005}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0.6
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 1
+  sideGap: 0.12
+  fitted: 1
+  sideAccess: 0
+  isSurface: 1
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 0
+  isHazard: 0
+  privacy: -0.6
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 0
+  bundle:
+  - options:
+    - {fileID: 7461276548894407054, guid: 91b5d6aeff6fead4599e44bcd75cd77c, type: 3}
+    - {fileID: 8237108819302310686, guid: a68e47004a9617c4487564f90b96a17f, type: 3}
+    localPosition: {x: -0.25, y: 0.7176921, z: 0.05}
+    localYaw: 0
+    yawJitter: 180
+    chance: 0.6
+    onFloor: 0
+    scatter: 0
+    tipChance: 0

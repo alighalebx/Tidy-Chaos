@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_laundry_c
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: laundry_c
+  displayName: Laundry Pile
+  prefab: {fileID: 7577218940702240970, guid: 3f9cc95b30b210647a25e130badb599b, type: 3}
+  layer: 2
+  rooms: 31
+  size: {x: 0.5, y: 0.22, z: 0.45}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 0
+  sideGap: 0.12
+  fitted: 0
+  sideAccess: 0
+  isSurface: 0
+  isLoose: 1
+  coverSpotChance: 0.6
+  tipChance: 0
+  yawJitter: 0
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 0
+  bundle: []

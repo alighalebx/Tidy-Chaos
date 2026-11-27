@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6945fc828c967c428e352e23ad68e49, type: 3}
+  m_Name: FD_k_table
+  m_EditorClassIdentifier: Assembly-CSharp::WheresMyLeftSock.World.Generation.FurnitureDef
+  id: k_table
+  displayName: Kitchen Table
+  prefab: {fileID: 1109577940127826155, guid: cb214990085cab74eb610058b8e8649b, type: 3}
+  layer: 0
+  rooms: 16
+  size: {x: 1.7671248, y: 0.6861414, z: 0.93948406}
+  baseHeight: 0
+  stackHeight: 0
+  frontClearance: 0
+  isRug: 0
+  maxPerHouse: 99
+  hasHidingSpots: 1
+  sideGap: 0.6
+  fitted: 0
+  sideAccess: 0
+  isSurface: 1
+  isLoose: 0
+  coverSpotChance: 0
+  tipChance: 0
+  yawJitter: 8
+  isHazard: 0
+  privacy: 0
+  hideFromDoors: 0
+  doorWallMinDistance: 0
+  preferCentered: 0
+  keepOffLanes: 1
+  bundle:
+  - options:
+    - {fileID: 2398852021961799647, guid: cedcf82c18f9e3045ad52b1d11c08f61, type: 3}
+    - {fileID: 5778743905552461952, guid: 9b370ce0f4dc5094faf838f7ed5bc939, type: 3}
+    localPosition: {x: -0.45, y: 0, z: 0.72}
+    localYaw: 180
+    yawJitter: 12
+    chance: 0.85
+    onFloor: 1
+    scatter: 0.22
+    tipChance: 0.15
+  - options:
+    - {fileID: 2398852021961799647, guid: cedcf82c18f9e3045ad52b1d11c08f61, type: 3}
+    - {fileID: 5778743905552461952, guid: 9b370ce0f4dc5094faf838f7ed5bc939, type: 3}
+    localPosition: {x: 0.45, y: 0, z: 0.72}
+    localYaw: 180
+    yawJitter: 12
+    chance: 0.7
+    onFloor: 1
+    scatter: 0.22
+    tipChance: 0.15
+  - options:
+    - {fileID: 2398852021961799647, guid: cedcf82c18f9e3045ad52b1d11c08f61, type: 3}
+    - {fileID: 5778743905552461952, guid: 9b370ce0f4dc5094faf838f7ed5bc939, type: 3}
+    localPosition: {x: -0.45, y: 0, z: -0.72}
+    localYaw: 0
+    yawJitter: 12
+    chance: 0.7
+    onFloor: 1
+    scatter: 0.22
+    tipChance: 0.15
+  - options:
+    - {fileID: 2398852021961799647, guid: cedcf82c18f9e3045ad52b1d11c08f61, type: 3}
+    - {fileID: 5778743905552461952, guid: 9b370ce0f4dc5094faf838f7ed5bc939, type: 3}
+    localPosition: {x: 0.45, y: 0, z: -0.72}
+    localYaw: 0
+    yawJitter: 12
+    chance: 0.85
+    onFloor: 1
+    scatter: 0.22
+    tipChance: 0.15
+  - options:
+    - {fileID: 6287225995694322896, guid: b5bf1dde976950b4097cc773849deb9f, type: 3}
+    localPosition: {x: 1.12, y: 0, z: 0}
+    localYaw: 270
+    yawJitter: 15
+    chance: 0.25
+    onFloor: 1
+    scatter: 0.2
+    tipChance: 0.35
+  - options:
+    - {fileID: 5490965192510528634, guid: 946f3c189f8516841a83e3e08190ce4d, type: 3}
+    localPosition: {x: 0.5, y: 0.6861414, z: 0.18}
+    localYaw: 0
+    yawJitter: 60
+    chance: 0.4
+    onFloor: 0
+    scatter: 0
+    tipChance: 0
