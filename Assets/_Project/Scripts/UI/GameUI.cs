@@ -114,11 +114,11 @@ namespace WheresMyLeftSock.UI
             var trt = (RectTransform)_title.transform;
             trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one; trt.offsetMin = trt.offsetMax = Vector2.zero;
             Img(trt, new Color(0.05f, 0.04f, 0.1f, 0.22f));
-            TMP_Text big = T("Big", trt, "WHERE'S MY\nLEFT SOCK?!", 128, FontStyles.Bold, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1500, 360), new Color(1f, 0.85f, 0.25f), centered: true, y: 120);
+            TMP_Text big = T("Big", trt, "ANA 3AL\nSELLEM!", 128, FontStyles.Bold, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1500, 360), new Color(1f, 0.85f, 0.25f), centered: true, y: 120);
             big.rectTransform.localRotation = Quaternion.Euler(0, 0, 4f);
             big.outlineWidth = 0.18f;
             big.outlineColor = new Color32(120, 40, 20, 255);
-            T("Sub", trt, "You overslept. Your ride is outside. You're still in pajamas.", 34, FontStyles.Italic, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1400, 60), Color.white, centered: true, y: -110);
+            T("Sub", trt, "90 Seconds to Find Your Clothes Before the Ride Leaves!", 34, FontStyles.Italic, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1400, 60), Color.white, centered: true, y: -110);
             _titlePrompt = T("Prompt", trt, "CLICK OR PRESS ANY KEY TO WAKE UP", 38, FontStyles.Bold, TextAlignmentOptions.Center, Vector2.zero, new Vector2(1200, 60), new Color(0.6f, 1f, 0.7f), centered: true, y: -230);
             _title.SetActive(false);
         }

@@ -1,4 +1,4 @@
-# Project Specification: *Where's My Left Sock?!* (Working Title)
+# Project Specification: *Ana 3al Sellem!*
 
 > **Purpose:** This document serves as the single source of truth for **Antigravity Agent** and the developers to implement, tune, and ship a 3D third-person physics-comedy game within a **5-day Game Jam** window.
 
@@ -41,7 +41,7 @@ Every core mechanic reinforces the theme:
 
 ## 3. Core Gameplay Loop
 
-1. **Wake-Up / Start State:** `RunIntro` + `GameUI` hold the run in `Menu` with a title card (*"You overslept. Your ride is outside. You're still in pajamas."*) and looping alarm SFX; any key or click wakes the player and starts the run. Subsequent restarts skip straight into `Playing`.
+1. **Wake-Up / Start State:** `RunIntro` + `GameUI` hold the run in `Menu` with the `"ANA 3AL SELLEM!"` title card (*"90 Seconds to Find Your Clothes Before the Ride Leaves!"*) and looping alarm SFX; any key or click wakes the player and starts the run. Subsequent restarts skip straight into `Playing`.
 2. **Objective Reveal:** `GameUI` displays a top-left checklist of the 5 required slots (*Left Foot, Right Foot, Legs, Torso, Accessory*) and live Dignity Score.
 3. **Search & Rummage:** Player sprints, skids, bonks, crouches, and hops through the 5-room house, grabbing and yeeting 60+ physics clutter props, opening drawers/doors, and avoiding puddles/Legos.
 4. **Equip / Compromise:**

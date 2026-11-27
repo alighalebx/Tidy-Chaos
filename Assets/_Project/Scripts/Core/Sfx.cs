@@ -28,13 +28,51 @@ namespace WheresMyLeftSock.Core
 
             c = AudioClip.Create("sfx_" + name, data.Length, 1, SR, false);
             c.SetData(data, 0);
+            c.LoadAudioData();
             Cache[name] = c;
             return c;
         }
 
-        public static void Play(string name, float volume = 1f, float pitch = 1f) => AudioHub.Instance.Play(Get(name), null, volume, pitch);
+        public static void Play(string name, float volume = 1f, float pitch = 1f)
+            => AudioHub.Instance.Play(Get(name), null, volume, pitch, GetPriority(name));
 
-        public static void PlayAt(string name, Vector3 pos, float volume = 1f, float pitch = 1f) => AudioHub.Instance.Play(Get(name), pos, volume, pitch);
+        public static void PlayAt(string name, Vector3 pos, float volume = 1f, float pitch = 1f)
+        {
+            bool isCatVocal = name == "meow" || name == "hiss" || name == "chirp";
+            AudioHub.Instance.Play(
+                Get(name),
+                pos,
+                volume,
+                pitch,
+                GetPriority(name),
+                isCatVocal ? 0.45f : -1f,
+                isCatVocal ? 9f : -1f);
+        }
+
+        private static int GetPriority(string name)
+        {
+            switch (name)
+            {
+                case "meow":
+                case "hiss":
+                case "chirp":
+                case "honk":
+                case "honk_long":
+                case "win":
+                case "lose":
+                case "pop":
+                case "alarm":
+                case "bonk":
+                case "slip":
+                    return 48;
+                case "thud":
+                case "step":
+                case "land":
+                    return 192;
+                default:
+                    return 112;
+            }
+        }
 
         // ------------------------------------------------------------------ synthesis
 
@@ -81,6 +119,7 @@ namespace WheresMyLeftSock.Core
 
         private static float Wave(float phase, int type)
         {
+            phase -= Mathf.Floor(phase);
             switch (type)
             {
                 case 1: return phase < 0.5f ? 0.6f : -0.6f;                      // square
@@ -496,7 +535,7 @@ namespace WheresMyLeftSock.Core
 
         private static float[] Meow()
         {
-            float dur = 0.44f;
+            float dur = 0.48f;
             float[] b = Buf(dur);
             float ph = 0f, ph2 = 0f;
             for (int i = 0; i < b.Length; i++)
@@ -507,12 +546,13 @@ namespace WheresMyLeftSock.Core
                     ? Mathf.Lerp(470f, 780f, t / 0.35f)
                     : Mathf.Lerp(780f, 410f, (t - 0.35f) / 0.65f);
                 freq += Mathf.Sin(t * 28f) * 14f;
-                ph += freq / SR;
-                ph2 += (freq * 2f) / SR;
+                ph = (ph + freq / SR) % 1f;
+                ph2 = (ph2 + (freq * 2f) / SR) % 1f;
+                float ph3 = (ph * 3f) % 1f;
 
-                float env = Mathf.Min(1f, t / 0.08f) * Mathf.Pow(1f - t, 0.7f);
-                float tone = Wave(ph, 0) * 0.68f + Wave(ph2, 0) * 0.24f + Wave(ph * 3f, 2) * 0.08f;
-                b[i] = tone * env * 0.55f;
+                float env = Mathf.Min(1f, t / 0.06f) * Mathf.Pow(1f - t, 0.75f) * Mathf.Min(1f, (1f - t) / 0.08f);
+                float tone = Wave(ph, 0) * 0.68f + Wave(ph2, 0) * 0.24f + Wave(ph3, 2) * 0.08f;
+                b[i] = Mathf.Clamp(tone * env * 0.65f, -0.95f, 0.95f);
             }
             return b;
         }
@@ -526,11 +566,11 @@ namespace WheresMyLeftSock.Core
             for (int i = 0; i < b.Length; i++)
             {
                 float t = i / (float)b.Length;
-                float env = Mathf.Min(1f, t / 0.03f) * Mathf.Exp(-t * 4.5f);
+                float env = Mathf.Min(1f, t / 0.03f) * Mathf.Exp(-t * 4.5f) * Mathf.Min(1f, (1f - t) / 0.05f);
                 float n = Noise();
                 float hp = n - prev * 0.92f;
                 prev = n;
-                ph += Mathf.Lerp(1500f, 900f, t) / SR;
+                ph = (ph + Mathf.Lerp(1500f, 900f, t) / SR) % 1f;
                 float rasp = Wave(ph, 2) * 0.14f;
                 b[i] = Mathf.Clamp((hp * 0.9f + rasp) * env * 0.65f, -0.95f, 0.95f);
             }
@@ -546,10 +586,10 @@ namespace WheresMyLeftSock.Core
             {
                 float t = i / (float)b.Length;
                 float freq = Mathf.Lerp(640f, 1320f, Mathf.Pow(t, 0.65f)) + Mathf.Sin(t * 78f) * 85f;
-                ph += freq / SR;
-                float env = Mathf.Min(1f, t / 0.06f) * Mathf.Pow(1f - t, 0.6f);
-                float tone = Wave(ph, 0) * 0.72f + Wave(ph * 2f, 0) * 0.28f;
-                b[i] = tone * env * 0.52f;
+                ph = (ph + freq / SR) % 1f;
+                float env = Mathf.Min(1f, t / 0.06f) * Mathf.Pow(1f - t, 0.6f) * Mathf.Min(1f, (1f - t) / 0.08f);
+                float tone = Wave(ph, 0) * 0.72f + Wave((ph * 2f) % 1f, 0) * 0.28f;
+                b[i] = Mathf.Clamp(tone * env * 0.52f, -0.95f, 0.95f);
             }
             return b;
         }

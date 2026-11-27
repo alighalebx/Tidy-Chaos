@@ -99,6 +99,7 @@ namespace WheresMyLeftSock.World
         private float _nextTargetScanTime;
         private float _nextFleeReevalTime;
         private float _nextStepSfxTime;
+        private float _nextVocalTime;
         private float _nextBlinkTime;
         private float _blinkEndTime;
         private float _patrolWaitTimer;
@@ -330,6 +331,7 @@ namespace WheresMyLeftSock.World
                 {
                     _desiredMoveDir = Vector3.zero;
                     _desiredSpeed = 0f;
+                    if (_alertMarker != null && _alertMarker.activeSelf) _alertMarker.SetActive(false);
                     return;
                 }
                 if (GameManager.Instance.IsPaused) return;
@@ -514,7 +516,7 @@ namespace WheresMyLeftSock.World
                 {
                     blocker.Interact(gameObject);
                     _queuedHopVel = Mathf.Max(_queuedHopVel, 3.0f);
-                    Sfx.PlayAt("meow", transform.position, 0.72f, Random.Range(1.08f, 1.24f));
+                    PlayVocal("meow", 0.72f, Random.Range(1.08f, 1.24f));
                     _pawWaitEndTime = Time.time + 0.45f;
                     _desiredMoveDir = Vector3.zero;
                     _desiredSpeed = 0f;
@@ -560,7 +562,7 @@ namespace WheresMyLeftSock.World
                 {
                     blocker.Interact(gameObject);
                     _queuedHopVel = Mathf.Max(_queuedHopVel, 3.0f);
-                    Sfx.PlayAt("meow", transform.position, 0.72f, Random.Range(1.08f, 1.24f));
+                    PlayVocal("meow", 0.72f, Random.Range(1.08f, 1.24f));
                     _pawWaitEndTime = Time.time + 0.45f;
                     _desiredMoveDir = Vector3.zero;
                     _desiredSpeed = 0f;
@@ -649,7 +651,7 @@ namespace WheresMyLeftSock.World
                 {
                     _state = PetState.FleeWithSock;
                     PickSmartFleePath();
-                    Sfx.PlayAt("meow", transform.position, 0.7f, Random.Range(1.15f, 1.32f));
+                    PlayVocal("meow", 0.7f, Random.Range(1.15f, 1.32f));
                     return;
                 }
 
@@ -689,7 +691,7 @@ namespace WheresMyLeftSock.World
             _tauntEndTime = Time.time + Random.Range(2.4f, 3.4f);
             _nextTauntReadyTime = Time.time + 5.5f;
             _queuedHopVel = Mathf.Max(_queuedHopVel, 2.2f);
-            Sfx.PlayAt("meow", transform.position, 0.82f, Random.Range(1.14f, 1.28f));
+            PlayVocal("meow", 0.82f, Random.Range(1.14f, 1.28f));
         }
 
         private void TickTaunt()
@@ -711,7 +713,7 @@ namespace WheresMyLeftSock.World
                  HasNearbyFastThrownClutter(3.2f)))
             {
                 _queuedHopVel = Mathf.Max(_queuedHopVel, 2.8f);
-                Sfx.PlayAt("meow", transform.position, 0.78f, Random.Range(1.22f, 1.38f));
+                PlayVocal("meow", 0.78f, Random.Range(1.22f, 1.38f));
                 _state = PetState.FleeWithSock;
                 PickSmartFleePath();
                 return;
@@ -738,7 +740,7 @@ namespace WheresMyLeftSock.World
             _jukePhaseEndTime = Time.time + JukeTelegraphDuration;
             _desiredMoveDir = Vector3.zero;
             _desiredSpeed = 0f;
-            Sfx.PlayAt("chirp", transform.position, 0.92f, Random.Range(0.96f, 1.12f));
+            PlayVocal("chirp", 0.92f, Random.Range(0.96f, 1.12f));
             return true;
         }
 
@@ -813,7 +815,7 @@ namespace WheresMyLeftSock.World
                 : "SOCK";
             TimerEscalationManager.Toast($"THE CAT STOLE YOUR {itemLabel}!!");
             StealToastCount++;
-            Sfx.PlayAt("meow", transform.position, 0.95f, Random.Range(1.05f, 1.22f));
+            PlayVocal("meow", 0.95f, Random.Range(1.05f, 1.22f), force: true);
 
             _queuedHopVel = Mathf.Max(_queuedHopVel, 3.8f);
             _nextJukeReadyTime = Time.time + 1.2f;
@@ -2122,17 +2124,18 @@ namespace WheresMyLeftSock.World
             return go;
         }
 
+        private void PlayVocal(string clipName, float volume, float pitch, bool force = false)
+        {
+            float now = Time.unscaledTime;
+            if (!force && now < _nextVocalTime) return;
+            _nextVocalTime = now + 0.42f;
+            Sfx.PlayAt(clipName, transform.position, volume, pitch);
+        }
+
         private Material MakeMat(Color color, float smoothness, bool unlit = false)
         {
-            Shader shader = unlit
-                ? (Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
-                : (Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
-
-            Material m = new Material(shader);
-            m.color = color;
-            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", color);
-            if (!unlit && m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smoothness);
-            _runtimeMaterials.Add(m);
+            Material m = RuntimeMaterials.CreateLitInstance(color, smoothness, unlit);
+            if (m != null) _runtimeMaterials.Add(m);
             return m;
         }
 

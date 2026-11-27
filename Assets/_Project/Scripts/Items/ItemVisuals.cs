@@ -1,4 +1,5 @@
 using UnityEngine;
+using WheresMyLeftSock.Core;
 
 namespace WheresMyLeftSock.Items
 {
@@ -161,7 +162,9 @@ namespace WheresMyLeftSock.Items
             p.transform.localPosition = pos;
             p.transform.localRotation = Quaternion.Euler(euler);
             p.transform.localScale = scale;
-            Tint(p.GetComponent<Renderer>(), color);
+            Renderer r = p.GetComponent<Renderer>();
+            RuntimeMaterials.ApplyLit(r);
+            Tint(r, color);
             return p;
         }
 

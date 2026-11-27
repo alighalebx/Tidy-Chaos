@@ -56,8 +56,8 @@ namespace WheresMyLeftSock.Player
 
         [Header("Cinematic Transitions & Showcases")]
         [SerializeField] private float introSwoopDuration = 0.75f;
-        [SerializeField] private float winShowcaseDistance = 2.15f;
-        [SerializeField] private float winShowcaseHeight = 1.32f;
+        [SerializeField] private float winShowcaseDistance = 2.45f;
+        [SerializeField] private float winShowcaseHeight = 1.26f;
         [SerializeField] private float winShowcaseOrbitAmplitude = 15f;
 
         private readonly RaycastHit[] _hits = new RaycastHit[16];

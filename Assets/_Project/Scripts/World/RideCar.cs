@@ -174,7 +174,9 @@ namespace WheresMyLeftSock.World
             puff.transform.localScale = Vector3.one * 0.4f;
             var mpb = new MaterialPropertyBlock();
             mpb.SetColor("_BaseColor", new Color(0.85f, 0.85f, 0.85f));
-            puff.GetComponent<Renderer>().SetPropertyBlock(mpb);
+            Renderer r = puff.GetComponent<Renderer>();
+            RuntimeMaterials.ApplyLit(r);
+            r.SetPropertyBlock(mpb);
             StartCoroutine(AnimateSmokePuff(puff));
         }
 
