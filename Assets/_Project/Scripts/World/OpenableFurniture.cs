@@ -54,6 +54,15 @@ namespace WheresMyLeftSock.World
             Apply();
         }
 
+        /// Snap open/closed without animation or sound (the generator yanks some drawers open for a messy start).
+        /// Only valid after Awake (runtime).
+        public void SetOpenInstant(bool open)
+        {
+            _isOpen = open;
+            _t = open ? 1f : 0f;
+            Apply();
+        }
+
         public void Interact(GameObject interactor)
         {
             _isOpen = !_isOpen;
