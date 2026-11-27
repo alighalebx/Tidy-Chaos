@@ -7,6 +7,7 @@ using WheresMyLeftSock.Core;
 using WheresMyLeftSock.Items;
 using WheresMyLeftSock.Player;
 using WheresMyLeftSock.World;
+using WheresMyLeftSock.World.Generation;
 
 namespace WheresMyLeftSock.EditorTools
 {
@@ -23,31 +24,14 @@ namespace WheresMyLeftSock.EditorTools
         private const string RootName = "GeneratedHouse";
         private const string SceneName = "Assets/_Project/Scenes/HouseLevel.unity";
 
-        public const float S = 0.21f;          // Kenney FBX units -> meters (wall tile = 2.1m)
-        public const float T = 2.1f;           // tile size
-        public const float WallH = 12.9f * S;  // 2.709m
-        public const float FloorTop = 0.5f * S;
+        public const float S = HouseShell.ModelScale;   // Kenney FBX units -> meters (wall tile = 2.1m)
+        public const float T = HouseShell.Tile;         // tile size
+        public const float WallH = HouseShell.WallHeight;
+        public const float FloorTop = HouseShell.FloorTop;
 
-        // '#' wall, 'w' window, 'd' wide open doorway, 'D' front door, '.'/missing = nothing
-        // HLines[z line] -> chars per x tile. VLines[x line] -> chars per z tile.
-        private static readonly string[] HLines =
-        {
-            "wwD#w#",   // z=0   front (living/kitchen)
-            "", "", "",
-            "#d##d#",   // z=8.4 living | hallway
-            "##d#d#",   // z=10.5 hallway | bedroom, bathroom
-            "", "",
-            "#ww#w#"    // z=16.8 back
-        };
-
-        private static readonly string[] VLines =
-        {
-            "#ww###w#", // x=0 west
-            "", "", "",
-            ".....#d#", // x=8.4 bedroom | bathroom
-            "",
-            "##w###w#"  // x=12.6 east
-        };
+        // the wall layout lives in HouseShell (shared with the furniture generator)
+        private static string[] HLines => HouseShell.HLines;
+        private static string[] VLines => HouseShell.VLines;
 
         private static Transform _structure, _furniture, _clutter, _spots, _lighting, _outside, _hazards;
         private static System.Random _rng;
@@ -60,6 +44,7 @@ namespace WheresMyLeftSock.EditorTools
         public static void BuildAll()
         {
             BuildClutterPrefabs();
+            FurnitureCatalog.BuildCatalog();
             BuildHouse();
         }
 
@@ -147,15 +132,20 @@ namespace WheresMyLeftSock.EditorTools
             _hazards = Group(root, "Hazards");
 
             BuildStructure();
-            BuildBedroom();
-            BuildBathroom();
-            BuildHallway();
-            BuildLivingRoom();
-            BuildKitchen();
-            BuildSyntyDressing();
+
+            // All furniture, props and floor hiding spots are generated per run. The editor shows the authored
+            // furniture layout (also the per-room fallback); props only exist in generated layouts.
+            var gen = root.AddComponent<FurnitureGenerator>();
+            gen.Configure(FurnitureCatalog.LoadRecipes(), null,
+                new List<Transform> { _furniture },
+                new List<Transform> { _clutter, _spots },
+                new List<Transform> { _hazards },
+                FallbackLayout());
+            gen.MaxLayer = GenLayer.Obstacles; // all four levels: base furniture, hiding furniture, props, hazards
+            GenerationTools.ShowAuthored(gen);
+
             BuildOutside();
             BuildLighting();
-            BuildHazards();
 
             root.AddComponent<HoverHighlighter>();
 
@@ -168,7 +158,78 @@ namespace WheresMyLeftSock.EditorTools
             Undo.RegisterCreatedObjectUndo(root, "Build House");
             EditorSceneManager.MarkSceneDirty(scene);
             Selection.activeGameObject = root;
-            Debug.Log($"[HouseBuilder] Built house: {_spotCounter} hiding spots, {_clutter.childCount} clutter props.");
+            Debug.Log($"[HouseBuilder] Built house: {_spotCounter} authored hiding spots, {_clutter.childCount} clutter props.");
+        }
+
+        /// The authored base layout: what the editor shows (props are dressed around it) and the per-room fallback.
+        private static List<FurnitureGenerator.FallbackPiece> FallbackLayout()
+        {
+            var list = new List<FurnitureGenerator.FallbackPiece>();
+
+            void Wall(Room room, string id, float x, float z, float yaw, float baseY = -1f)
+            {
+                FurnitureDef d = FurnitureCatalog.LoadDef(id);
+                if (d == null) return;
+                Vector2 f = Placement.Fwd(yaw);
+                Vector2 c = new Vector2(x, z) + f * (d.size.z * 0.5f + HouseShell.WallInset);
+                list.Add(new FurnitureGenerator.FallbackPiece { room = room, def = d, center = c, yaw = yaw, baseY = baseY });
+            }
+
+            void At(Room room, string id, float x, float z, float yaw, float baseY = -1f)
+            {
+                FurnitureDef d = FurnitureCatalog.LoadDef(id);
+                if (d == null) return;
+                list.Add(new FurnitureGenerator.FallbackPiece { room = room, def = d, center = new Vector2(x, z), yaw = yaw, baseY = baseY });
+            }
+
+            Wall(Room.Bedroom, "bed_double", 4.2f, 16.8f, 180f);
+            Wall(Room.Bedroom, "nightstand", 2.75f, 16.8f, 180f);
+            Wall(Room.Bedroom, "nightstand", 5.65f, 16.8f, 180f);
+            Wall(Room.Bedroom, "desk", 0f, 13.6f, 90f);
+            At(Room.Bedroom, "rug_rect", 4.2f, 12.7f, 0f);
+            Wall(Room.Bedroom, "wardrobe", 0f, 11.6f, 90f);
+            Wall(Room.Bedroom, "bookcase_wide", 1.8f, 10.5f, 0f);
+            Wall(Room.Bedroom, "wardrobe", 8.4f, 11.4f, 270f);
+            Wall(Room.Bedroom, "bookcase_open", 8.4f, 15.8f, 270f);
+
+            Wall(Room.Bathroom, "bathtub", 11.2f, 16.8f, 180f);
+            Wall(Room.Bathroom, "toilet", 12.6f, 13.6f, 270f);
+            Wall(Room.Bathroom, "bath_sink", 11.0f, 10.5f, 0f);
+            Wall(Room.Bathroom, "bath_mirror", 11.0f, 10.5f, 0f);
+            At(Room.Bathroom, "bath_mat", 11.2f, 15.25f, 180f);
+            Wall(Room.Bathroom, "vanity", 8.4f, 15.6f, 90f);
+            Wall(Room.Bathroom, "washer", 12.6f, 11.6f, 270f);
+
+            Wall(Room.Hallway, "shoe_bench", 1.4f, 10.5f, 180f);
+            At(Room.Hallway, "rug_rect", 6.3f, 9.45f, 0f);
+            Wall(Room.Hallway, "coat_closet", 12.6f, 9.45f, 270f);
+            Wall(Room.Hallway, "side_table", 6.3f, 8.4f, 0f);
+
+            Wall(Room.LivingRoom, "tv_cabinet", 6.3f, 8.4f, 180f);
+            FurnitureDef cab = FurnitureCatalog.LoadDef("tv_cabinet");
+            At(Room.LivingRoom, "tv", 6.3f, 8.4f - HouseShell.WallInset - (cab != null ? cab.size.z * 0.5f : 0.27f), 180f, cab != null ? cab.size.y : 0.65f);
+            Wall(Room.LivingRoom, "speaker", 4.9f, 8.4f, 180f);
+            Wall(Room.LivingRoom, "speaker", 7.7f, 8.4f, 180f);
+            At(Room.LivingRoom, "sofa", 6.3f, 4.2f, 0f);
+            At(Room.LivingRoom, "coffee_table", 6.3f, 6.0f, 0f);
+            At(Room.LivingRoom, "armchair", 3.4f, 5.3f, 90f);
+            At(Room.LivingRoom, "rug_round", 6.3f, 5.6f, 0f);
+            Wall(Room.LivingRoom, "bookcase_open", 0f, 7.4f, 90f);
+
+            Wall(Room.Kitchen, "k_cabinet_drawer", 12.6f, 2.2f, 270f);
+            Wall(Room.Kitchen, "k_stove", 12.6f, 3.1f, 270f);
+            Wall(Room.Kitchen, "k_cabinet", 12.6f, 4.0f, 270f);
+            Wall(Room.Kitchen, "k_sink", 12.6f, 4.9f, 270f);
+            Wall(Room.Kitchen, "k_cabinet_drawer", 12.6f, 5.8f, 270f);
+            Wall(Room.Kitchen, "k_cabinet", 12.6f, 6.7f, 270f);
+            Wall(Room.Kitchen, "k_fridge", 12.6f, 7.75f, 270f);
+            Wall(Room.Kitchen, "k_hood", 12.6f, 3.1f, 270f);
+            Wall(Room.Kitchen, "k_upper", 12.6f, 2.2f, 270f);
+            Wall(Room.Kitchen, "k_upper_double", 12.6f, 6.25f, 270f);
+            At(Room.Kitchen, "k_table", 10.0f, 3.8f, 90f);
+            FurnitureDef cd = FurnitureCatalog.LoadDef("k_cabinet_drawer");
+            At(Room.Kitchen, "k_microwave", 12.6f - HouseShell.WallInset - (cd != null ? cd.size.z * 0.5f : 0.47f), 5.8f, 270f, cd != null ? cd.size.y : 0.95f);
+            return list;
         }
 
         // ------------------------------------------------------------------ structure
@@ -263,202 +324,11 @@ namespace WheresMyLeftSock.EditorTools
         // Bedroom x0-8.4 z10.5-16.8, Bathroom x8.4-12.6 z10.5-16.8.
         // yaw: direction the furniture FRONT faces (0 = +z/north, 90 = east, 180 = south, 270 = west).
 
-        private static void BuildBedroom()
-        {
-            const Room R = Room.Bedroom;
-            var bed = Place("bedDouble", _furniture, V(4.2f, 16.8f), 180f, label: "Bed");
-            var nsL = Place("cabinetBedDrawer", _furniture, V(2.75f, 16.8f), 180f, label: "Nightstand");
-            var nsR = Place("cabinetBedDrawer", _furniture, V(5.65f, 16.8f), 180f, label: "Nightstand");
-            var wardrobe = Place("bookcaseClosedDoors", _furniture, V(0f, 11.6f), 90f, label: "Wardrobe");
-            var desk = Place("desk", _furniture, V(0f, 13.6f), 90f, label: "Desk");
-            var shelf = Place("bookcaseClosedWide", _furniture, V(1.8f, 10.5f), 0f, label: "Bookcase");
-            var closet = Place("bookcaseClosedDoors", _furniture, V(8.4f, 11.4f), 270f, label: "Closet");
-            Place("bookcaseOpen", _furniture, V(8.4f, 15.8f), 270f, label: "Shelf");
-            Place("rugRectangle", _furniture, V(4.2f, 12.7f), 0f, snap: false, colliders: false);
-            Place("lampSquareFloor", _furniture, V(7.9f, 16.3f), 0f, snap: false);
-
-            SpotInside(nsL, "drawer", R);
-            SpotInside(nsR, "drawer", R);
-            SpotInside(wardrobe, "door", R);
-            SpotInside(closet, "door", R);
-            SpotInside(desk, "drawer", R);
-            SpotOnTop(shelf, R, ConcealmentType.HighShelf);
-            SpotOnTop(closet, R, ConcealmentType.HighShelf);
-
-            Spot(R, ConcealmentType.UnderClutter, Floor(6.5f, 15.0f)); Clutter("LaundryPile_A", 6.5f, 15.0f);
-            Spot(R, ConcealmentType.UnderClutter, Surface(3.8f, 15.4f)); Clutter("Pillow", 3.8f, 15.4f); Clutter("PillowBlue", 4.6f, 15.5f);
-            Spot(R, ConcealmentType.UnderClutter, Floor(7.8f, 13.2f)); Clutter("BoxOpen", 7.8f, 13.2f);
-            Spot(R, ConcealmentType.FloorHidden, Floor(0.35f, 15.9f));
-            Spot(R, ConcealmentType.ObviousDecoySpot, Surface(0.4f, 13.2f)); // desk top
-            Spot(R, ConcealmentType.ObviousDecoySpot, Floor(4.2f, 12.4f));   // middle of rug
-
-            Clutter("ChairDesk", 1.25f, 13.6f, yaw: 270f);
-            Clutter("LampTable", 2.75f, 16.45f);
-            Clutter("Laptop", 0.4f, 14.0f, yaw: 90f);
-            Clutter("PlantSmall2", 0.35f, 14.25f);
-            Clutter("Bear", 4.2f, 14.7f);
-            Clutter("LaundryPile_B", 2.2f, 12.0f);
-            Clutter("LaundryPile_C", 5.6f, 11.4f);
-            Clutter("Books", 1.4f, 10.75f);
-            Clutter("BoxClosed", 6.9f, 16.3f);
-            Clutter("Keyboard", 0.35f, 13.4f, yaw: 90f);
-        }
-
-        private static void BuildBathroom()
-        {
-            const Room R = Room.Bathroom;
-            var tub = Place("bathtub", _furniture, V(11.2f, 16.8f), 180f, label: "Bathtub");
-            var toilet = Place("toilet", _furniture, V(12.6f, 13.6f), 270f, label: "Toilet");
-            var sink = Place("bathroomSinkSquare", _furniture, V(11.0f, 10.5f), 0f, label: "Sink");
-            Place("bathroomMirror", _furniture, V(11.0f, 10.5f), 0f, yOffset: 1.25f, label: "Mirror");
-            var vanity = Place("bathroomCabinetDrawer", _furniture, V(8.4f, 15.6f), 90f, label: "Vanity");
-            var washer = Place("washerDryerStacked", _furniture, V(12.6f, 11.6f), 270f, label: "Washer");
-            Place("rugRounded", _furniture, V(10.4f, 14.3f), 90f, snap: false, colliders: false);
-
-            SpotInside(vanity, "drawer", R);
-            SpotInside(vanity, "drawerBottom", R);
-            SpotInside(washer, "washerDoor", R);
-            SpotOnTop(washer, R, ConcealmentType.HighShelf);
-            Spot(R, ConcealmentType.FloorHidden, Surface(11.2f, 16.2f)); // inside the tub
-            Spot(R, ConcealmentType.UnderClutter, Floor(9.5f, 15.0f)); Clutter("Towel_Blue", 9.5f, 15.0f);
-            Spot(R, ConcealmentType.UnderClutter, Floor(11.9f, 12.65f)); Clutter("Trashcan", 11.9f, 12.65f);
-            Spot(R, ConcealmentType.ObviousDecoySpot, Surface(12.3f, 13.6f)); // toilet lid
-            Spot(R, ConcealmentType.ObviousDecoySpot, Floor(10.0f, 13.0f));
-
-            Clutter("Towel_Pink", 11.6f, 16.2f);
-            Clutter("LaundryPile_B", 9.2f, 12.0f);
-            Clutter("PlantSmall3", 8.75f, 15.45f);
-        }
-
-        private static void BuildHallway()
-        {
-            const Room R = Room.Hallway;
-            var bench = Place("benchCushionLow", _furniture, V(1.4f, 10.5f), 180f, label: "Shoe Bench");
-            Place("coatRack", _furniture, V(0f, 9.45f), 90f, yOffset: 1.45f, label: "Coat Hooks");
-            var coatCloset = Place("bookcaseClosedDoors", _furniture, V(12.6f, 9.45f), 270f, label: "Coat Closet");
-            var side = Place("sideTableDrawers", _furniture, V(6.3f, 8.4f), 0f, label: "Side Table");
-            Place("rugRectangle", _furniture, V(6.3f, 9.45f), 0f, snap: false, colliders: false);
-            Place("pottedPlant", _furniture, V(11.4f, 8.8f), 0f, snap: false);
-            Place("lampWall", _furniture, V(6.3f, 10.5f), 180f, yOffset: 1.7f, colliders: false);
-
-            SpotInside(coatCloset, "door", R);
-            SpotOnTop(coatCloset, R, ConcealmentType.HighShelf);
-            SpotInside(side, "drawer", R);
-            Spot(R, ConcealmentType.FloorHidden, Floor(0.35f, 9.0f));
-            Spot(R, ConcealmentType.ObviousDecoySpot, Surface(1.4f, 10.2f)); // bench top
-            Spot(R, ConcealmentType.UnderClutter, Floor(10.9f, 10.1f)); Clutter("BoxClosed", 10.9f, 10.1f);
-
-            Clutter("BoxOpen", 7.6f, 8.8f);
-            Clutter("BoxClosed", 7.6f, 8.8f); // stacks
-            Clutter("LaundryPile_C", 4.6f, 9.9f);
-            Clutter("PlantSmall1", 6.0f, 8.6f);
-        }
-
-        private static void BuildLivingRoom()
-        {
-            const Room R = Room.LivingRoom;
-            var tv = Place("cabinetTelevisionDoors", _furniture, V(6.3f, 8.4f), 180f, label: "TV Cabinet");
-            Place("televisionModern", _furniture, new Vector3(6.3f, TopY(tv), 8.4f), 180f, onFloor: false, label: "TV");
-            var sofa = Place("loungeSofa", _furniture, V(6.3f, 4.2f), 0f, snap: false, label: "Sofa");
-            var coffee = Place("tableCoffee", _furniture, V(6.3f, 6.0f), 0f, snap: false, label: "Coffee Table");
-            Place("loungeChair", _furniture, V(3.4f, 5.3f), 60f, snap: false, label: "Armchair");
-            Place("rugRound", _furniture, V(6.3f, 5.6f), 0f, snap: false, colliders: false);
-            var books = Place("bookcaseOpen", _furniture, V(0f, 7.4f), 90f, label: "Bookshelf");
-            Place("pottedPlant", _furniture, V(0.5f, 0.5f), 0f, snap: false);
-            Place("lampRoundFloor", _furniture, V(8.0f, 4.0f), 0f, snap: false);
-            Place("coatRackStanding", _furniture, V(3.6f, 0.6f), 0f, snap: false, label: "Coat Rack");
-            Place("rugDoormat", _furniture, V(5.25f, 0.5f), 0f, snap: false, colliders: false);
-            Place("speaker", _furniture, V(4.9f, 8.4f), 180f, label: "Speaker");
-            Place("speaker", _furniture, V(7.7f, 8.4f), 180f, label: "Speaker");
-
-            SpotInside(tv, "door", R);
-            SpotOnTop(books, R, ConcealmentType.HighShelf);
-            Spot(R, ConcealmentType.UnderClutter, Surface(6.3f, 4.0f)); Clutter("PillowLong", 6.3f, 4.05f); Clutter("Pillow", 5.85f, 4.1f);
-            Spot(R, ConcealmentType.FloorHidden, Floor(6.3f, 3.45f)); // behind sofa
-            Spot(R, ConcealmentType.UnderClutter, Floor(0.8f, 1.6f)); Clutter("BoxClosed", 0.8f, 1.6f); Clutter("BoxOpen", 0.8f, 1.6f);
-            Spot(R, ConcealmentType.UnderClutter, Floor(2.3f, 7.6f)); Clutter("LaundryPile_A", 2.3f, 7.6f);
-            Spot(R, ConcealmentType.ObviousDecoySpot, Surface(coffee.transform.position.x, coffee.transform.position.z));
-            Spot(R, ConcealmentType.ObviousDecoySpot, Floor(5.25f, 0.6f)); // doormat
-
-            Clutter("PillowBlue", 6.75f, 4.1f);
-            Clutter("Books", 6.0f, 6.1f);
-            Clutter("Radio", 6.7f, 6.0f);
-            Clutter("SpeakerSmall", 0.35f, 7.0f);
-            Clutter("BoxClosed", 1.6f, 1.1f);
-            Clutter("TVVintage", 2.0f, 3.0f);
-            Clutter("Bear", 3.4f, 5.3f);
-        }
-
-        private static void BuildKitchen()
-        {
-            const Room R = Room.Kitchen;
-            // counters along the east wall, facing west
-            var c1 = Place("kitchenCabinetDrawer", _furniture, V(12.6f, 2.2f), 270f, label: "Kitchen Cabinet");
-            Place("kitchenStove", _furniture, V(12.6f, 3.1f), 270f, label: "Oven");
-            var c3 = Place("kitchenCabinet", _furniture, V(12.6f, 4.0f), 270f, label: "Kitchen Cabinet");
-            Place("kitchenSink", _furniture, V(12.6f, 4.9f), 270f, label: "Sink Cabinet");
-            var c5 = Place("kitchenCabinetDrawer", _furniture, V(12.6f, 5.8f), 270f, label: "Kitchen Cabinet");
-            Place("kitchenCabinet", _furniture, V(12.6f, 6.7f), 270f, label: "Kitchen Cabinet");
-            var fridge = Place("kitchenFridgeLarge", _furniture, V(12.6f, 7.75f), 270f, label: "Fridge");
-            Place("hoodModern", _furniture, V(12.6f, 3.1f), 270f, yOffset: 1.55f, colliders: false);
-            var up1 = Place("kitchenCabinetUpper", _furniture, V(12.6f, 2.2f), 270f, yOffset: 1.45f, label: "Upper Cabinet");
-            Place("kitchenCabinetUpperDouble", _furniture, V(12.6f, 6.25f), 270f, yOffset: 1.45f, label: "Upper Cabinet");
-            var table = Place("table", _furniture, V(10.0f, 3.8f), 90f, snap: false, label: "Kitchen Table");
-            Place("kitchenMicrowave", _furniture, new Vector3(12.25f, TopY(c5), 5.8f), 270f, onFloor: false, label: "Microwave");
-
-            SpotInside(fridge, "doorLeft", R);
-            SpotInside(c1, "drawer", R);
-            SpotInside(c3, "door", R);
-            SpotInside(up1, "door", R, ConcealmentType.HighShelf);
-            SpotOnTop(fridge, R, ConcealmentType.HighShelf);
-            Spot(R, ConcealmentType.UnderClutter, Surface(10.0f, 3.4f)); Clutter("BoxOpen", 10.0f, 3.4f);
-            Spot(R, ConcealmentType.UnderClutter, Floor(12.0f, 0.75f)); Clutter("Trashcan", 12.0f, 0.75f);
-            Spot(R, ConcealmentType.ObviousDecoySpot, Surface(12.2f, 4.0f)); // counter
-
-            Clutter("Chair", 9.25f, 3.3f, yaw: 90f);
-            Clutter("ChairCushion", 9.25f, 4.3f, yaw: 90f);
-            Clutter("Chair", 10.75f, 3.3f, yaw: 270f);
-            Clutter("StoolBar", 10.75f, 4.3f, yaw: 270f);
-            Clutter("Toaster", 12.2f, 2.0f, yaw: 270f);
-            Clutter("Blender", 12.25f, 6.95f, yaw: 270f);
-            Clutter("PlantSmall1", 12.2f, 5.3f);
-            Clutter("LaundryPile_C", 9.0f, 1.2f);
-        }
-
-        // ------------------------------------------------------------------ synty dressing (variety)
+        // Rooms are furnished entirely by the FurnitureGenerator (see FurnitureCatalog):
+        //   level 1 base furniture, level 2 hiding furniture, level 3 props (decor, clutter, floor hiding spots).
+        // HouseBuilder only builds the shell, the outside, lighting and hazards.
 
         private const string Synty = "Assets/SyntyStudios/";
-
-        private static void BuildSyntyDressing()
-        {
-            // --- indoor throwables ---
-            Clutter("LaundryBasket", 7.5f, 14.95f);
-            Clutter("BaseballBat", 1.3f, 15.9f, yaw: 80f);
-            Clutter("BookBig", 0.4f, 12.95f, yaw: 90f);
-            Clutter("Newspaper", 3.0f, 11.3f);
-            Clutter("LaundrySack", 12.1f, 14.75f);
-            Clutter("MovingBox", 1.9f, 8.85f);
-            Clutter("BookSmall", 6.6f, 9.0f);
-            Clutter("Pumpkin", 1.4f, 6.2f);
-            Clutter("Vase", 7.7f, 5.3f);
-            Clutter("Newspaper", 4.5f, 3.0f);
-            Clutter("MovingBox", 2.9f, 1.0f);
-            Clutter("MovingBox", 2.9f, 1.0f);
-            Clutter("Burger", 10.2f, 4.2f);
-            Clutter("CheeseWheel", 12.25f, 2.6f);
-            Clutter("FryingPan", 12.2f, 3.1f, yaw: 270f);
-
-            // --- wall decor ---
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_Poster_01", _furniture, new Vector3(8.4f, 1.15f, 14.0f), 270f, 1f, snapFromWall: true);
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_Poster_02", _furniture, new Vector3(3.0f, 1.15f, 10.5f), 0f, 1f, snapFromWall: true);
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_Poster_Frame_01", _furniture, new Vector3(0f, 0.9f, 4.2f), 90f, 1f, snapFromWall: true);
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_Poster_03", _furniture, new Vector3(7.3f, 1.15f, 8.4f), 0f, 0.8f, snapFromWall: true);
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_Poster_01", _furniture, new Vector3(0f, 1.2f, 15.8f), 90f, 0.8f, snapFromWall: true);
-
-            // --- big plants ---
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_PotPlant_02", _furniture, new Vector3(7.9f, FloorTop, 0.55f), 0f, 0.9f);
-            PlaceSynty("PolygonCity/Prefabs/Props/SM_Prop_PotPlant_01", _furniture, new Vector3(12.05f, FloorTop, 10.15f), 0f, 0.8f);
-        }
 
         private static void BuildYard()
         {
@@ -628,48 +498,6 @@ namespace WheresMyLeftSock.EditorTools
             RoomLight("Light_Living_W", 3.2f, 4.2f, 2.0f, 7f);
             RoomLight("Light_Living_E", 7.0f, 4.2f, 2.0f, 7f);
             RoomLight("Light_Kitchen", 10.6f, 4.2f, 2.0f, 6.5f);
-        }
-
-        private static void BuildHazards()
-        {
-            // bathroom puddle
-            Material water = Mat("M_Puddle", new Color(0.55f, 0.75f, 0.9f), 0.97f);
-            var puddleVis = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            puddleVis.name = "PuddleVisual";
-            Object.DestroyImmediate(puddleVis.GetComponent<Collider>());
-            puddleVis.transform.SetParent(_hazards, false);
-            puddleVis.transform.position = new Vector3(10.4f, FloorTop + 0.004f, 13.4f);
-            puddleVis.transform.localScale = new Vector3(1.3f, 0.003f, 0.9f);
-            puddleVis.GetComponent<Renderer>().sharedMaterial = water;
-            HazardTrigger("Hazard_Puddle", new Vector3(10.4f, FloorTop + 0.3f, 13.4f), new Vector3(1.2f, 0.6f, 0.8f));
-
-            // hallway legos
-            Transform lego = Group(_hazards.gameObject, "Legos");
-            Color[] cols = { new Color(0.9f, 0.15f, 0.15f), new Color(0.15f, 0.4f, 0.9f), new Color(0.95f, 0.8f, 0.1f), new Color(0.2f, 0.75f, 0.3f) };
-            for (int i = 0; i < 16; i++)
-            {
-                var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                b.name = "Lego";
-                Object.DestroyImmediate(b.GetComponent<Collider>());
-                b.transform.SetParent(lego, false);
-                b.transform.position = new Vector3(3.2f + Rand(-0.55f, 0.55f), FloorTop + 0.02f, 9.5f + Rand(-0.45f, 0.45f));
-                b.transform.rotation = Quaternion.Euler(0f, Rand(0f, 360f), 0f);
-                b.transform.localScale = new Vector3(0.064f, 0.04f, 0.032f);
-                b.GetComponent<Renderer>().sharedMaterial = Mat("M_Lego_" + (i % 4), cols[i % 4], 0.7f);
-            }
-
-            HazardTrigger("Hazard_Legos", new Vector3(3.2f, FloorTop + 0.3f, 9.5f), new Vector3(1.2f, 0.6f, 1.0f));
-        }
-
-        private static void HazardTrigger(string name, Vector3 pos, Vector3 size)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(_hazards, false);
-            go.transform.position = pos;
-            var bc = go.AddComponent<BoxCollider>();
-            bc.size = size;
-            bc.isTrigger = true;
-            go.AddComponent<SlipperyHazard>();
         }
 
         // ------------------------------------------------------------------ scene housekeeping
@@ -861,14 +689,14 @@ namespace WheresMyLeftSock.EditorTools
 
         /// Instantiates a Kenney model inside a wrapper whose origin is the model's bottom-center and whose
         /// +Z is the furniture front. p is the wall line (snap) or the center point (no snap).
-        private static GameObject Place(string model, Transform parent, Vector3 p, float yaw, bool snap = true, bool onFloor = true,
-            bool colliders = true, bool openables = true, float yOffset = 0f, string label = null)
+        internal static GameObject Place(string model, Transform parent, Vector3 p, float yaw, bool snap = true, bool onFloor = true,
+            bool colliders = true, bool openables = true, float yOffset = 0f, string label = null, float modelYaw = 0f)
         {
             var wrap = new GameObject(label ?? model);
             var inst = (GameObject)PrefabUtility.InstantiatePrefab(LoadModel(model));
             inst.transform.SetParent(wrap.transform, false);
             inst.transform.localScale *= S;
-            inst.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            inst.transform.localRotation = Quaternion.Euler(0f, 180f + modelYaw, 0f); // modelYaw: fix models not facing +Z
             Bounds b = RendererBounds(wrap);
             inst.transform.localPosition = new Vector3(-b.center.x, -b.min.y, -b.center.z);
 
@@ -979,7 +807,7 @@ namespace WheresMyLeftSock.EditorTools
 
         private static float TopY(GameObject go) => RendererBounds(go).max.y;
 
-        private static Transform FindPart(Transform root, string prefix)
+        internal static Transform FindPart(Transform root, string prefix)
         {
             string p = prefix.ToLowerInvariant();
             foreach (Transform t in root.GetComponentsInChildren<Transform>())
@@ -990,7 +818,7 @@ namespace WheresMyLeftSock.EditorTools
             return null;
         }
 
-        private static Bounds RendererBounds(GameObject go)
+        internal static Bounds RendererBounds(GameObject go)
         {
             bool has = false;
             Bounds b = new Bounds(go.transform.position, Vector3.zero);
@@ -1058,7 +886,7 @@ namespace WheresMyLeftSock.EditorTools
             return m;
         }
 
-        private static void EnsureFolder(string path)
+        internal static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
             string parent = Path.GetDirectoryName(path).Replace('\\', '/');
